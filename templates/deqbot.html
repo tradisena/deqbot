@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal - DEQCore.ai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+
+    <div id="loginSection" class="w-full max-w-md bg-gray-800 rounded-xl shadow-2xl overflow-hidden border border-gray-700">
+        <div class="p-8 text-center">
+            <h2 class="text-2xl font-bold text-white mb-6">Secure Client Portal</h2>
+            <form id="loginForm" class="space-y-4">
+                <input type="email" id="clientEmail" placeholder="Email Anda" required class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                <input type="password" id="clientToken" placeholder="Token Akses" required class="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition-colors">Masuk Ke Sistem</button>
+            </form>
+            <p class="mt-4 text-xs text-gray-500 italic uppercase tracking-tighter">Authorized Personnel Only</p>
+        </div>
+    </div>
+
+    <div id="mainSection" class="hidden w-full max-w-6xl h-[90vh] bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex border border-gray-700">
+        
+        <aside class="w-80 bg-gray-900 border-r border-gray-700 flex flex-col">
+            <div class="p-6 border-b border-gray-700 bg-gray-900/50">
+                <h3 class="font-bold text-blue-400 uppercase text-xs tracking-widest mb-1">Business Identity</h3>
+                <p class="text-[10px] text-gray-500 uppercase">Lengkapi 20 Informasi Dasar</p>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
+                <div id="businessForm" class="space-y-3">
+                    <script>
+                        const labels = [
+                            "Nama Bisnis", "Jenis Layanan", "Alamat Pusat", "Jam Operasional", 
+                            "Link Website", "Kontak WA Admin", "Visi Utama", "Misi Utama", 
+                            "Target Audiens", "Pesaing Utama", "Keunggulan Produk", "Harga Terendah", 
+                            "Harga Tertinggi", "Metode Pembayaran", "Area Pengiriman", "Lama Garansi", 
+                            "SOP Komplain", "Diskon Member", "Tahun Berdiri", "Nama Owner"
+                        ];
+                        labels.forEach((l, i) => {
+                            document.write(`
+                                <div>
+                                    <label class="text-[9px] text-gray-500 uppercase mb-1 block">${i+1}. ${l}</label>
+                                    <input type="text" data-idx="${i}" class="biz-input w-full bg-gray-800 border border-gray-700 rounded p-2 text-xs outline-none focus:border-blue-500">
+                                </div>
+                            `);
+                        });
+                    </script>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-700">
+                <button id="btnSync" class="w-full bg-gray-800 border border-blue-600/30 text-blue-400 py-2 rounded text-[10px] font-bold uppercase hover:bg-blue-600 hover:text-white transition-all">
+                    Sync Info Ke Backend
+                </button>
+            </div>
+        </aside>
+
+        <section class="flex-1 flex flex-col bg-gray-900">
+            <header class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900/80 backdrop-blur">
+                <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-gray-300">Terminal AI Aktif</span>
+                </div>
+                <button onclick="location.reload()" class="text-[10px] text-red-500 font-bold uppercase tracking-widest hover:text-red-400">Logout</button>
+            </header>
+
+            <div id="chatBox" class="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide text-sm">
+                <div class="mb-4">
+                    <div class="text-xs text-green-400 font-bold uppercase mb-1">DEQCore AI</div>
+                    <div class="bg-gray-700/50 p-3 rounded-lg rounded-tl-none border border-gray-600 text-sm text-gray-200">
+                        Sistem Berhasil Terhubung. Silakan test instruksi karakter Anda.
+                    </div>
+                </div>
+            </div>
+
+            <form id="chatForm" class="p-4 bg-gray-800 border-t border-gray-700">
+                <div class="relative">
+                    <input type="text" id="userInput" placeholder="Ketik instruksi..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-4 pr-12 text-sm outline-none focus:border-blue-500 transition-all">
+                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        let currentToken = "";
+        const loginSection = document.getElementById('loginSection');
+        const mainSection = document.getElementById('mainSection');
+        const loginForm = document.getElementById('loginForm');
+        const chatForm = document.getElementById('chatForm');
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+
+        loginForm.onsubmit = (e) => {
+            e.preventDefault();
+            currentToken = document.getElementById('clientToken').value;
+            loginSection.classList.add('hidden');
+            mainSection.classList.remove('hidden');
+            mainSection.classList.add('flex');
+        };
+
+        // --- PERBAIKAN LOGIKA SYNC ---
+        document.getElementById('btnSync').onclick = async () => {
+            const inputs = document.querySelectorAll('.biz-input');
+            let fullParagraph = "INFORMASI BISNIS KLIEN:\n";
+            inputs.forEach((input, i) => {
+                fullParagraph += `${labels[i]}: ${input.value || 'N/A'}\n`;
+            });
+
+            try {
+                // Perbaikan: Token dikirim via Header x-deq-key agar sinkron dengan backend
+                await fetch('/api/settings/save_control', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-deq-key': currentToken 
+                    },
+                    body: JSON.stringify({ active_engine: "llama3.2:1b", hybrid_mode: true }) 
+                });
+                alert("Info Berhasil Disinkronkan.");
+            } catch (e) { console.error("Sync Error", e); }
+        };
+
+        // --- PERBAIKAN LOGIKA CHAT (KUNCI UTAMA) ---
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if(!text) return;
+
+            // Render User Bubble
+            chatBox.innerHTML += `
+                <div class="flex flex-col items-end mb-4">
+                    <div class="bg-blue-600 p-3 rounded-lg rounded-tr-none text-sm text-white shadow-lg">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            
+            userInput.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                // SINKRONISASI KABEL: 
+                // 1. Menggunakan Header 'x-deq-key' (BUKAN underscore)
+                // 2. Menghapus parameter 'model' agar ditentukan otomatis oleh Hybrid Backend
+                const response = await fetch('/v1/chat', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'x-deq-key': currentToken 
+                    },
+                    body: JSON.stringify({ prompt: text })
+                });
+
+                if(response.status === 401) {
+                    throw new Error("Token Tidak Valid.");
+                }
+
+                const data = await response.json();
+                
+                // Render Bot Bubble (Gaya Asli)
+                chatBox.innerHTML += `
+                    <div class="mb-4">
+                        <div class="text-xs text-green-400 font-bold uppercase mb-1">DEQCore AI</div>
+                        <div class="bg-gray-700/50 p-3 rounded-lg rounded-tl-none border border-gray-600 text-sm text-gray-200 shadow-md">
+                            ${data.response}
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                chatBox.innerHTML += `
+                    <div class="text-center my-4 text-red-500 text-[10px] font-bold uppercase italic">
+                        Koneksi Gagal: ${err.message}
+                    </div>
+                `;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    </script>
+</body>
+</html>

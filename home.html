@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard DEQCore.ai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen font-sans selection:bg-blue-500/30">
+
+    <nav class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold">D</div>
+                <h1 class="text-xl font-bold tracking-tighter">DEQCore<span class="text-blue-500">.ai</span></h1>
+            </div>
+            <div class="flex items-center space-x-6 text-sm">
+                <a href="/newdeq" class="text-gray-400 hover:text-white transition">New Client</a>
+                <a href="/character" class="text-gray-400 hover:text-white transition">Character</a>
+                <a href="/skill" class="text-gray-400 hover:text-white transition">Skills</a>
+                <a href="/configurasi" class="text-yellow-500 font-bold hover:text-yellow-400 transition">⚙️ Config</a>
+                <a href="/deqbot" target="_blank" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold transition">Open Bot UI</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-12 gap-8">
+        <div class="col-span-12 lg:col-span-4 space-y-6">
+            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl">
+                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> System Engine
+                </h2>
+                
+                <div class="space-y-3 mb-8">
+                    <label class="flex items-center p-4 bg-gray-800/50 rounded-xl border border-gray-700 cursor-pointer hover:border-blue-500 transition group">
+                        <input type="radio" name="aiModel" value="llama3.2:1b" class="w-4 h-4 text-blue-600 focus:ring-0 bg-gray-700 border-gray-600">
+                        <span class="ml-4 font-medium text-gray-300 group-hover:text-white">Llama 3.2 (Lokal)</span>
+                    </label>
+                    <label class="flex items-center p-4 bg-gray-800/50 rounded-xl border border-gray-700 cursor-pointer hover:border-blue-500 transition group">
+                        <input type="radio" name="aiModel" value="phi3:mini" class="w-4 h-4 text-blue-600 focus:ring-0 bg-gray-700 border-gray-600">
+                        <span class="ml-4 font-medium text-gray-300 group-hover:text-white">Phi-3 Mini (Lokal)</span>
+                    </label>
+                    <label class="flex items-center p-4 bg-gray-800/50 rounded-xl border border-gray-700 cursor-pointer hover:border-blue-500 transition group">
+                        <input type="radio" name="aiModel" value="gemini" class="w-4 h-4 text-blue-600 focus:ring-0 bg-gray-700 border-gray-600">
+                        <span class="ml-4 font-medium text-gray-300 group-hover:text-white">Google Gemini (Cloud)</span>
+                    </label>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-blue-900/20 border border-blue-800/50 rounded-xl mb-6">
+                    <div>
+                        <p class="text-xs font-bold text-blue-400 uppercase">Hybrid Mode</p>
+                        <p class="text-[10px] text-gray-400 italic">Auto-switch to Cloud if Local Fails</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="hybridToggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+
+                <button id="btnApply" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition uppercase tracking-widest text-xs">
+                    Apply Changes
+                </button>
+            </div>
+        </div>
+
+        <div class="col-span-12 lg:col-span-8 bg-gray-900 border border-gray-800 rounded-2xl flex flex-col h-[600px] shadow-2xl relative overflow-hidden">
+            <div class="p-4 border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Master Console:</span>
+                    <span id="activeModelDisplay" class="text-xs font-bold text-blue-500 uppercase">LOADING...</span>
+                    <span id="hybridTag" class="hidden px-2 py-0.5 bg-blue-500 text-[9px] font-black rounded text-white">HYBRID</span>
+                </div>
+            </div>
+
+            <div id="chatBox" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:20px_20px]">
+                </div>
+
+            <div class="p-4 bg-gray-900/80 border-t border-gray-800">
+                <div class="relative">
+                    <input type="text" id="userInput" placeholder="Test your engine here..." 
+                        class="w-full bg-black border border-gray-700 rounded-xl px-4 py-4 pr-12 text-sm focus:border-blue-500 outline-none transition">
+                    <button id="btnSend" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Load Configuration
+        async function loadConfig() {
+            try {
+                const res = await fetch('/api/settings/load_control');
+                const data = await res.json();
+                document.getElementById('activeModelDisplay').innerText = data.active_engine.toUpperCase();
+                document.getElementById('hybridTag').style.display = data.hybrid_mode ? "inline-flex" : "none";
+                document.getElementById('hybridToggle').checked = data.hybrid_mode;
+                
+                const radio = document.querySelector(`input[name="aiModel"][value="${data.active_engine}"]`);
+                if(radio) radio.checked = true;
+            } catch (e) { console.error("Config Load Failed"); }
+        }
+
+        // Apply Configuration
+        document.getElementById('btnApply').onclick = async () => {
+            const selected = document.querySelector('input[name="aiModel"]:checked').value;
+            const hybrid = document.getElementById('hybridToggle').checked;
+            const btn = document.getElementById('btnApply');
+            
+            btn.innerText = "SAVING...";
+            await fetch('/api/settings/save_control', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ active_engine: selected, hybrid_mode: hybrid })
+            });
+            location.reload();
+        };
+
+        // Chat Logic
+        const chatBox = document.getElementById('chatBox');
+        function addMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            div.innerHTML = `
+                <div class="${role === 'user' ? 'bg-blue-600' : 'bg-gray-800'} max-w-[80%] px-4 py-3 rounded-2xl text-sm shadow-lg">
+                    <p class="whitespace-pre-wrap">${text}</p>
+                </div>
+            `;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('userInput');
+            const prompt = input.value.trim();
+            if(!prompt) return;
+
+            addMessage('user', prompt);
+            input.value = '';
+
+            try {
+                const res = await fetch('/v1/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-DEQ-KEY': 'MASTER-ADMIN' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+                const data = await res.json();
+                addMessage('bot', data.response);
+            } catch (e) { addMessage('bot', "System Error: Connection Lost."); }
+        }
+
+        document.getElementById('btnSend').onclick = sendChat;
+        document.getElementById('userInput').onkeypress = (e) => { if(e.key === 'Enter') sendChat(); };
+        
+        window.onload = loadConfig;
+    </script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# deqcoreai
+Digital Ebot Quantum
