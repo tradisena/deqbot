@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DEQBOT TASK</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#0f0f0f;
+    color:white;
+    font-family:Arial;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#151515;
+    padding:15px;
+    border-bottom:1px solid #333;
+}
+
+.left-actions,
+.right-actions{
+    display:flex;
+    gap:10px;
+}
+
+.btn{
+    background:#00ffaa;
+    color:black;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.container{
+    display:flex;
+    height:calc(100vh - 70px);
+}
+
+.sidebar{
+    width:260px;
+    background:#181818;
+    border-right:1px solid #333;
+    overflow:auto;
+}
+
+.task-item{
+    padding:15px;
+    border-bottom:1px solid #2a2a2a;
+}
+
+.task-item-title{
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.export-btn{
+    margin-top:10px;
+    background:#0099ff;
+    padding:5px 10px;
+    border-radius:6px;
+    display:inline-block;
+    cursor:pointer;
+}
+
+.content{
+    flex:1;
+    overflow:auto;
+    padding:20px;
+}
+
+.dashboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:20px;
+}
+
+.task-card{
+    background:#181818;
+    border:1px solid #333;
+    padding:20px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.task-card:hover{
+    border-color:#00ffaa;
+}
+
+input,
+textarea,
+select{
+    width:100%;
+    padding:12px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border:none;
+    border-radius:8px;
+    background:#1d1d1d;
+    color:white;
+    box-sizing:border-box;
+}
+
+textarea{
+    min-height:120px;
+}
+
+.save-btn{
+    width:100%;
+    background:#00ffaa;
+    color:black;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.read-box{
+    background:#181818;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #333;
+}
+
+.read-box h3{
+    color:#00ffaa;
+}
+
+.ss-preview{
+    max-width:100%;
+    border-radius:10px;
+    margin-top:15px;
+}
+
+.edit-btn{
+    margin-top:20px;
+    background:#ffaa00;
+    color:black;
+    padding:12px 20px;
+    border-radius:8px;
+    display:inline-block;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+
+    <div class="left-actions">
+        <div class="btn">☰ MENU</div>
+    </div>
+
+    <h2>DEQBOT TASK MANAGER</h2>
+
+    <div class="right-actions">
+        <div class="btn" onclick="goHome()">HOME</div>
+        <div class="btn" onclick="showForm()">+ TASK</div>
+    </div>
+
+</div>
+
+<div class="container">
+
+    <div class="sidebar">
+        <div id="task-list"></div>
+    </div>
+
+    <div class="content" id="content">
+
+        <div class="dashboard" id="dashboard"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+let allTasks = [];
+
+async function loadTasks(){
+
+    const response = await fetch("/get_tasks");
+    const tasks = await response.json();
+
+    allTasks = tasks;
+
+    loadSidebar(tasks);
+    loadDashboard(tasks);
+}
+
+function loadSidebar(tasks){
+
+    const taskList = document.getElementById("task-list");
+
+    taskList.innerHTML = "";
+
+    tasks.forEach(task=>{
+
+        taskList.innerHTML += `
+        <div class="task-item">
+
+            <div class="task-item-title"
+            onclick="viewTask(${task.id})">
+
+                ${task.no_task}<br>
+                ${task.judul}
+
+            </div>
+
+            <div class="export-btn"
+            onclick="exportTask(${task.id})">
+
+                EXPORT
+
+            </div>
+
+        </div>
+        `;
+    });
+
+}
+
+function loadDashboard(tasks){
+
+    const dashboard = document.getElementById("dashboard");
+
+    dashboard.innerHTML = "";
+
+    tasks.forEach(task=>{
+
+        dashboard.innerHTML += `
+        <div class="task-card"
+        onclick="viewTask(${task.id})">
+
+            <h3>${task.no_task}</h3>
+
+            <p>Status : ${task.status}</p>
+
+            <p>Github Update :
+            ${task.github_update}</p>
+
+        </div>
+        `;
+    });
+
+}
+
+function goHome(){
+
+    loadDashboard(allTasks);
+
+}
+
+function showForm(){
+
+    document.getElementById("content").innerHTML = `
+
+    <div class="form-box">
+
+        <label>No Task</label>
+        <input type="text" id="no_task">
+
+        <label>Judul</label>
+        <input type="text" id="judul">
+
+        <label>Detail</label>
+        <textarea id="detail"></textarea>
+
+        <label>Detail Tambahan</label>
+        <textarea id="detail_tambahan"></textarea>
+
+        <label>File yg di Update</label>
+        <textarea id="file_update"></textarea>
+
+        <label>Sumber File Master</label>
+        <input type="text" id="sumber_master">
+
+        <label>Metode Pengerjaan</label>
+        <input type="text" id="metode">
+
+        <label>AI Agent</label>
+        <input type="text" id="ai_agent">
+
+        <label>Push Github</label>
+        <select id="push_github">
+            <option>Pending</option>
+            <option>Done</option>
+        </select>
+
+        <label>Status</label>
+        <select id="status">
+            <option>Pending</option>
+            <option>Finish</option>
+        </select>
+
+        <label>Github Update</label>
+        <select id="github_update">
+            <option>No</option>
+            <option>Yes</option>
+        </select>
+
+        <label>Date Finish</label>
+        <input type="date" id="date_finish">
+
+        <label>File SS Design UI Struktur</label>
+        <input type="file" id="ss_design">
+
+        <label>Kendala / Ket</label>
+        <textarea id="kendala"></textarea>
+
+        <button class="save-btn"
+        onclick="saveTask()">
+
+            SAVE TASK
+
+        </button>
+
+    </div>
+    `;
+}
+
+async function saveTask(){
+
+    const formData = new FormData();
+
+    formData.append("no_task",
+    document.getElementById("no_task").value);
+
+    formData.append("judul",
+    document.getElementById("judul").value);
+
+    formData.append("detail",
+    document.getElementById("detail").value);
+
+    formData.append("detail_tambahan",
+    document.getElementById("detail_tambahan").value);
+
+    formData.append("file_update",
+    document.getElementById("file_update").value);
+
+    formData.append("sumber_master",
+    document.getElementById("sumber_master").value);
+
+    formData.append("metode",
+    document.getElementById("metode").value);
+
+    formData.append("ai_agent",
+    document.getElementById("ai_agent").value);
+
+    formData.append("push_github",
+    document.getElementById("push_github").value);
+
+    formData.append("status",
+    document.getElementById("status").value);
+
+    formData.append("github_update",
+    document.getElementById("github_update").value);
+
+    formData.append("date_finish",
+    document.getElementById("date_finish").value);
+
+    formData.append("kendala",
+    document.getElementById("kendala").value);
+
+    formData.append("ss_design",
+    document.getElementById("ss_design").files[0]);
+
+    await fetch("/save_task",{
+        method:"POST",
+        body:formData
+    });
+
+    alert("TASK SAVED");
+
+    location.reload();
+
+}
+
+function viewTask(id){
+
+    const task = allTasks.find(t=>t.id==id);
+
+    document.getElementById("content").innerHTML = `
+
+    <div class="read-box">
+
+        <h2>${task.no_task}</h2>
+
+        <h3>${task.judul}</h3>
+
+        <p><b>Detail:</b><br>
+        ${task.detail}</p>
+
+        <p><b>Detail Tambahan:</b><br>
+        ${task.detail_tambahan}</p>
+
+        <p><b>File Update:</b><br>
+        ${task.file_update}</p>
+
+        <p><b>Sumber Master:</b><br>
+        ${task.sumber_master}</p>
+
+        <p><b>Metode:</b><br>
+        ${task.metode}</p>
+
+        <p><b>AI Agent:</b><br>
+        ${task.ai_agent}</p>
+
+        <p><b>Push Github:</b><br>
+        ${task.push_github}</p>
+
+        <p><b>Status:</b><br>
+        ${task.status}</p>
+
+        <p><b>Github Update:</b><br>
+        ${task.github_update}</p>
+
+        <p><b>Kendala:</b><br>
+        ${task.kendala}</p>
+
+        ${
+            task.ss_design
+            ?
+            `<img class="ss-preview"
+            src="/uploads/${task.ss_design}">`
+            :
+            ''
+        }
+
+        <div class="edit-btn"
+        onclick="showForm()">
+
+            EDIT TASK
+
+        </div>
+
+    </div>
+    `;
+}
+
+function exportTask(id){
+
+    window.location.href =
+    "/export_task/" + id;
+
+}
+
+loadTasks();
+
+</script>
+
+</body>
+</html>
