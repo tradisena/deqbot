@@ -3,22 +3,29 @@ import sqlite3
 import random
 import string
 import requests
+import importlib.util
 from fastapi import FastAPI, Request, HTTPException, Header
 from fastapi.responses import HTMLResponse
+from fastapi.responses import PlainTextResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import List, Optional
 import uvicorn
 
 # --- Gemini SDK Setup ---
-try:
+HAS_GENAI_SDK = importlib.util.find_spec("google.genai") is not None
+HAS_OLD_GENAI_SDK = importlib.util.find_spec("google.generativeai") is not None
+genai = None
+old_genai = None
+
+if HAS_GENAI_SDK:
     from google import genai
-    HAS_GENAI_SDK = True
-except ImportError:
-    HAS_GENAI_SDK = False
+elif HAS_OLD_GENAI_SDK:
+    import google.generativeai as old_genai
 
 # --- DATABASE SETUP ---
 DB_NAME = "deqcore.db"
+MEMORY_DB_NAME = "memory.db"
 
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
@@ -84,6 +91,87 @@ def init_db():
 
 init_db()
 
+def get_memory_connection():
+    conn = sqlite3.connect(MEMORY_DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_memory_db():
+    conn = get_memory_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS client_profiles (
+            token TEXT PRIMARY KEY,
+            email TEXT DEFAULT '',
+            business_identity TEXT DEFAULT '',
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS chat_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token TEXT,
+            role TEXT,
+            message TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS prospect_contacts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token TEXT,
+            nama TEXT,
+            nohp TEXT,
+            keterangan TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_memory_db()
+
+def get_gemini_config():
+    conn = get_db_connection()
+    gemini_set = conn.execute(
+        "SELECT key_value, model_type FROM settings WHERE key_name = 'gemini_api_key'"
+    ).fetchone()
+    conn.close()
+
+    db_key = gemini_set["key_value"].strip() if gemini_set and gemini_set["key_value"] else ""
+    db_model = gemini_set["model_type"].strip() if gemini_set and gemini_set["model_type"] else ""
+
+    env_key = os.getenv("GEMINI_API_KEY", "").strip()
+    env_model = os.getenv("GEMINI_MODEL", "").strip()
+
+    api_key = db_key or env_key
+    model = db_model or env_model or "gemini-2.5-flash"
+    return api_key, model
+
+def generate_gemini_response(prompt: str):
+    api_key, model = get_gemini_config()
+    if not api_key:
+        return None, "Config Gemini Error: API key belum diset di menu Config atau env GEMINI_API_KEY."
+
+    if HAS_GENAI_SDK:
+        try:
+            client_gen = genai.Client(api_key=api_key)
+            resp = client_gen.models.generate_content(model=model, contents=prompt)
+            return resp.text, None
+        except Exception as e:
+            return None, f"Gemini Error ({model}): {str(e)}"
+
+    if HAS_OLD_GENAI_SDK:
+        try:
+            old_genai.configure(api_key=api_key)
+            model_client = old_genai.GenerativeModel(model)
+            resp = model_client.generate_content(prompt)
+            return resp.text, None
+        except Exception as e:
+            return None, f"Gemini Error ({model}): {str(e)}"
+
+    return None, "Config Gemini Error: library Google Gemini belum ter-install (google-genai / google-generativeai)."
+
 # --- FASTAPI SETUP ---
 app = FastAPI(title="DEQCore.ai")
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -115,6 +203,19 @@ class ControlRequest(BaseModel):
 class GeminiSaveRequest(BaseModel):
     api_key: str
     model_type: str
+
+class ClientProfileSaveRequest(BaseModel):
+    email: str = ""
+    business_identity: str = ""
+
+class ClientHistoryRequest(BaseModel):
+    role: str
+    message: str
+
+class ProspectContactRequest(BaseModel):
+    nama: str
+    nohp: str
+    keterangan: str = ""
 
 # --- ROUTES DASHBOARD ---
 @app.get("/", response_class=HTMLResponse)
@@ -185,6 +286,140 @@ async def delete_gemini_key():
     conn.commit()
     conn.close()
     return {"status": "success"}
+
+@app.get("/api/client/profile")
+async def get_client_profile(x_deq_key: str = Header(None)):
+    if not x_deq_key:
+        raise HTTPException(status_code=401, detail="Token Required")
+    conn = get_memory_connection()
+    row = conn.execute("SELECT email, business_identity FROM client_profiles WHERE token = ?", (x_deq_key,)).fetchone()
+    conn.close()
+    return dict(row) if row else {"email": "", "business_identity": ""}
+
+@app.post("/api/client/profile")
+async def save_client_profile(req: ClientProfileSaveRequest, x_deq_key: str = Header(None)):
+    if not x_deq_key:
+        raise HTTPException(status_code=401, detail="Token Required")
+    conn = get_memory_connection()
+    conn.execute('''
+        INSERT INTO client_profiles (token, email, business_identity, updated_at)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(token) DO UPDATE SET
+            email = excluded.email,
+            business_identity = excluded.business_identity,
+            updated_at = CURRENT_TIMESTAMP
+    ''', (x_deq_key, req.email.strip(), req.business_identity.strip()))
+    conn.commit()
+    conn.close()
+    return {"status": "success"}
+
+@app.get("/api/client/history")
+async def get_client_history(x_deq_key: str = Header(None)):
+    if not x_deq_key:
+        raise HTTPException(status_code=401, detail="Token Required")
+    conn = get_memory_connection()
+    rows = conn.execute('''
+        SELECT role, message, created_at
+        FROM chat_history
+        WHERE token = ?
+        ORDER BY id ASC
+        LIMIT 100
+    ''', (x_deq_key,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.get("/api/client/prospects")
+async def get_client_prospects(x_deq_key: str = Header(None)):
+    if not x_deq_key:
+        raise HTTPException(status_code=401, detail="Token Required")
+    conn = get_memory_connection()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS prospect_contacts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token TEXT,
+            nama TEXT,
+            nohp TEXT,
+            keterangan TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    rows = conn.execute('''
+        SELECT id, nama, nohp, keterangan, created_at
+        FROM prospect_contacts
+        WHERE token = ?
+        ORDER BY id DESC
+        LIMIT 200
+    ''', (x_deq_key,)).fetchall()
+    conn.commit()
+    conn.close()
+    return [dict(r) for r in rows]
+
+@app.post("/api/client/prospects")
+async def add_client_prospect(req: ProspectContactRequest, x_deq_key: str = Header(None)):
+    if not x_deq_key:
+        raise HTTPException(status_code=401, detail="Token Required")
+    conn = get_memory_connection()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS prospect_contacts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token TEXT,
+            nama TEXT,
+            nohp TEXT,
+            keterangan TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.execute('''
+        INSERT INTO prospect_contacts (token, nama, nohp, keterangan)
+        VALUES (?, ?, ?, ?)
+    ''', (x_deq_key, req.nama.strip(), req.nohp.strip(), req.keterangan.strip()))
+    conn.commit()
+    conn.close()
+    return {"status": "success"}
+
+@app.post("/api/client/history")
+async def save_client_history(req: ClientHistoryRequest, x_deq_key: str = Header(None)):
+    if not x_deq_key:
+        raise HTTPException(status_code=401, detail="Token Required")
+    conn = get_memory_connection()
+    conn.execute("INSERT INTO chat_history (token, role, message) VALUES (?, ?, ?)", (x_deq_key, req.role.strip(), req.message.strip()))
+    conn.execute('''
+        DELETE FROM chat_history
+        WHERE token = ?
+          AND id NOT IN (
+              SELECT id FROM chat_history WHERE token = ? ORDER BY id DESC LIMIT 200
+          )
+    ''', (x_deq_key, x_deq_key))
+    conn.commit()
+    conn.close()
+    return {"status": "success"}
+
+@app.delete("/api/client/history")
+async def clear_client_history(x_deq_key: str = Header(None)):
+    if not x_deq_key:
+        raise HTTPException(status_code=401, detail="Token Required")
+    conn = get_memory_connection()
+    conn.execute("DELETE FROM chat_history WHERE token = ?", (x_deq_key,))
+    conn.commit()
+    conn.close()
+    return {"status": "success"}
+
+@app.get("/api/client/history/export", response_class=PlainTextResponse)
+async def export_client_history(x_deq_key: str = Header(None)):
+    if not x_deq_key:
+        raise HTTPException(status_code=401, detail="Token Required")
+    conn = get_memory_connection()
+    rows = conn.execute('''
+        SELECT role, message, created_at
+        FROM chat_history
+        WHERE token = ?
+        ORDER BY id ASC
+    ''', (x_deq_key,)).fetchall()
+    conn.close()
+    lines = ["DEQBOT CLIENT CHAT EXPORT", f"TOKEN: {x_deq_key}", "----------------------------"]
+    for r in rows:
+        lines.append(f"[{r['created_at']}] {r['role'].upper()}: {r['message']}")
+    return "\n".join(lines)
 
 # --- API CLIENTS ---
 @app.get("/api/clients")
@@ -270,7 +505,6 @@ async def chat_endpoint(request: dict, x_deq_key: str = Header(None)):
     conn = get_db_connection()
     engine_set = conn.execute("SELECT key_value FROM settings WHERE key_name = 'active_engine'").fetchone()
     hybrid_set = conn.execute("SELECT key_value FROM settings WHERE key_name = 'hybrid_mode'").fetchone()
-    gemini_set = conn.execute("SELECT key_value, model_type FROM settings WHERE key_name = 'gemini_api_key'").fetchone()
     
     active_engine = engine_set['key_value'] if engine_set else "llama3.2:1b"
     hybrid_on = (hybrid_set['key_value'] == 'true') if hybrid_set else True
@@ -283,18 +517,28 @@ async def chat_endpoint(request: dict, x_deq_key: str = Header(None)):
         if not client:
             conn.close()
             raise HTTPException(status_code=401, detail="Token Invalid")
-        prompt_final = f"ROLE: {client['assigned_characters']}\nSOP: {client['admin_instructions']}\nINFO: {client['informasi_owner']}\nUSER: {request['prompt']}"
+        mem_conn = get_memory_connection()
+        profile = mem_conn.execute(
+            "SELECT business_identity FROM client_profiles WHERE token = ?",
+            (x_deq_key,)
+        ).fetchone()
+        mem_conn.close()
+        business_identity = profile["business_identity"] if profile and profile["business_identity"] else "N/A"
+        prompt_final = (
+            f"ROLE: {client['assigned_characters']}\n"
+            f"SOP: {client['admin_instructions']}\n"
+            f"INFO: {client['informasi_owner']}\n"
+            f"BUSINESS_IDENTITY:\n{business_identity}\n"
+            f"INSTRUKSI PENTING: Wajib gunakan data BUSINESS_IDENTITY jika user menanyakan profil bisnis (owner, alamat, jam, dll).\n"
+            f"USER: {request['prompt']}"
+        )
     conn.close()
 
     if active_engine == "gemini":
-        if HAS_GENAI_SDK and gemini_set:
-            try:
-                client_gen = genai.Client(api_key=gemini_set['key_value'])
-                resp = client_gen.models.generate_content(model=gemini_set['model_type'], contents=prompt_final)
-                return {"response": resp.text}
-            except Exception as e:
-                return {"response": f"Gemini Error ({gemini_set['model_type']}): {str(e)}"}
-        return {"response": "Config Gemini Error."}
+        gemini_text, gemini_error = generate_gemini_response(prompt_final)
+        if gemini_text:
+            return {"response": gemini_text}
+        return {"response": gemini_error}
     else:
         try:
             # Timeout dinaikkan ke 60s untuk load model berat
@@ -302,12 +546,10 @@ async def chat_endpoint(request: dict, x_deq_key: str = Header(None)):
                                 json={"model": active_engine, "prompt": prompt_final, "stream": False}, timeout=60)
             return {"response": res.json().get("response", "")}
         except:
-            if hybrid_on and HAS_GENAI_SDK and gemini_set:
-                try:
-                    client_gen = genai.Client(api_key=gemini_set['key_value'])
-                    resp = client_gen.models.generate_content(model=gemini_set['model_type'], contents="[HYBRID FAILOVER] " + prompt_final)
-                    return {"response": "(Backup Cloud) " + resp.text}
-                except: pass
+            if hybrid_on:
+                gemini_text, _ = generate_gemini_response("[HYBRID FAILOVER] " + prompt_final)
+                if gemini_text:
+                    return {"response": "(Backup Cloud) " + gemini_text}
             return {"response": "Ollama Offline & Hybrid Gagal."}
 
 if __name__ == "__main__":
