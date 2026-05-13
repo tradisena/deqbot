@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
 <title>DEQBOT TASK</title>
 
 <style>
@@ -57,6 +61,7 @@ body{
 .task-item-title{
     cursor:pointer;
     font-weight:bold;
+    line-height:1.5;
 }
 
 .export-btn{
@@ -76,7 +81,8 @@ body{
 
 .dashboard{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    grid-template-columns:
+    repeat(auto-fill,minmax(220px,1fr));
     gap:20px;
 }
 
@@ -90,6 +96,13 @@ body{
 
 .task-card:hover{
     border-color:#00ffaa;
+}
+
+.card-title{
+    color:#999;
+    font-size:12px;
+    margin-top:8px;
+    margin-bottom:10px;
 }
 
 input,
@@ -121,6 +134,18 @@ textarea{
     cursor:pointer;
 }
 
+.category-list{
+    margin-top:20px;
+}
+
+.category-item{
+    background:#181818;
+    padding:15px;
+    border-radius:8px;
+    margin-bottom:10px;
+    border:1px solid #333;
+}
+
 .read-box{
     background:#181818;
     padding:20px;
@@ -128,14 +153,17 @@ textarea{
     border:1px solid #333;
 }
 
-.read-box h3{
-    color:#00ffaa;
+.info-box{
+    background:#111;
+    padding:15px;
+    border-radius:8px;
+    margin-bottom:15px;
 }
 
-.ss-preview{
-    max-width:100%;
-    border-radius:10px;
-    margin-top:15px;
+.info-title{
+    color:#00ffaa;
+    margin-bottom:8px;
+    font-weight:bold;
 }
 
 .edit-btn{
@@ -149,21 +177,53 @@ textarea{
     font-weight:bold;
 }
 
+.ss-preview{
+    max-width:100%;
+    border-radius:10px;
+    margin-top:15px;
+}
+
 </style>
+
 </head>
+
 <body>
 
 <div class="topbar">
 
     <div class="left-actions">
-        <div class="btn">☰ MENU</div>
+
+        <div class="btn">
+            ☰ MENU
+        </div>
+
     </div>
 
     <h2>DEQBOT TASK MANAGER</h2>
 
     <div class="right-actions">
-        <div class="btn" onclick="goHome()">HOME</div>
-        <div class="btn" onclick="showForm()">+ TASK</div>
+
+        <div class="btn"
+        onclick="goHome()">
+
+            HOME
+
+        </div>
+
+        <div class="btn"
+        onclick="showCategoryForm()">
+
+            + KATEGORI
+
+        </div>
+
+        <div class="btn"
+        onclick="showForm()">
+
+            + TASK
+
+        </div>
+
     </div>
 
 </div>
@@ -171,12 +231,16 @@ textarea{
 <div class="container">
 
     <div class="sidebar">
+
         <div id="task-list"></div>
+
     </div>
 
-    <div class="content" id="content">
+    <div class="content"
+    id="content">
 
-        <div class="dashboard" id="dashboard"></div>
+        <div class="dashboard"
+        id="dashboard"></div>
 
     </div>
 
@@ -185,27 +249,50 @@ textarea{
 <script>
 
 let allTasks = [];
+let allCategories = [];
+
 
 async function loadTasks(){
 
-    const response = await fetch("/get_tasks");
-    const tasks = await response.json();
+    const response =
+    await fetch("/get_tasks");
+
+    const tasks =
+    await response.json();
 
     allTasks = tasks;
 
     loadSidebar(tasks);
+
     loadDashboard(tasks);
+
 }
+
+
+async function loadCategories(){
+
+    const response =
+    await fetch("/get_categories");
+
+    const categories =
+    await response.json();
+
+    allCategories = categories;
+
+}
+
 
 function loadSidebar(tasks){
 
-    const taskList = document.getElementById("task-list");
+    const taskList =
+    document.getElementById("task-list");
 
     taskList.innerHTML = "";
 
     tasks.forEach(task=>{
 
         taskList.innerHTML += `
+
         <div class="task-item">
 
             <div class="task-item-title"
@@ -216,180 +303,450 @@ function loadSidebar(tasks){
 
             </div>
 
-            <div class="export-btn"
-            onclick="exportTask(${task.id})">
-
-                EXPORT
-
-            </div>
-
         </div>
+
         `;
+
     });
 
 }
 
+
+function limitWords(text,maxWords=5){
+
+    if(!text) return '';
+
+    const words = text.split(' ');
+
+    return words
+    .slice(0,maxWords)
+    .join(' ');
+
+}
+
+
 function loadDashboard(tasks){
 
-    const dashboard = document.getElementById("dashboard");
+    const dashboard =
+    document.getElementById("dashboard");
 
     dashboard.innerHTML = "";
 
     tasks.forEach(task=>{
 
         dashboard.innerHTML += `
+
         <div class="task-card"
         onclick="viewTask(${task.id})">
 
-            <h3>${task.no_task}</h3>
+            <h2>${task.no_task}</h2>
 
-            <p>Status : ${task.status}</p>
+            <div class="card-title">
 
-            <p>Github Update :
-            ${task.github_update}</p>
+                ${limitWords(task.judul)}
+
+            </div>
+
+            <p>Kategori :
+            ${task.kategori || '-'}</p>
+
+            <p>Status :
+            ${task.status}</p>
+
+            <p>Deadline :
+            ${task.date_finish || '-'}</p>
 
         </div>
+
         `;
+
     });
 
 }
 
+
 function goHome(){
+
+    document.getElementById("content")
+    .innerHTML = `
+
+    <div class="dashboard"
+    id="dashboard"></div>
+
+    `;
 
     loadDashboard(allTasks);
 
 }
 
-function showForm(){
 
-    document.getElementById("content").innerHTML = `
+function showCategoryForm(){
 
-    <div class="form-box">
+    document.getElementById("content")
+    .innerHTML = `
 
-        <label>No Task</label>
-        <input type="text" id="no_task">
+    <h2>CREATE KATEGORI</h2>
 
-        <label>Judul</label>
-        <input type="text" id="judul">
+    <label>Nama Kategori</label>
 
-        <label>Detail</label>
-        <textarea id="detail"></textarea>
+    <input type="text"
+    id="nama_kategori">
 
-        <label>Detail Tambahan</label>
-        <textarea id="detail_tambahan"></textarea>
+    <button class="save-btn"
+    onclick="saveCategory()">
 
-        <label>File yg di Update</label>
-        <textarea id="file_update"></textarea>
+        SAVE KATEGORI
 
-        <label>Sumber File Master</label>
-        <input type="text" id="sumber_master">
+    </button>
 
-        <label>Metode Pengerjaan</label>
-        <input type="text" id="metode">
-
-        <label>AI Agent</label>
-        <input type="text" id="ai_agent">
-
-        <label>Push Github</label>
-        <select id="push_github">
-            <option>Pending</option>
-            <option>Done</option>
-        </select>
-
-        <label>Status</label>
-        <select id="status">
-            <option>Pending</option>
-            <option>Finish</option>
-        </select>
-
-        <label>Github Update</label>
-        <select id="github_update">
-            <option>No</option>
-            <option>Yes</option>
-        </select>
-
-        <label>Date Finish</label>
-        <input type="date" id="date_finish">
-
-        <label>File SS Design UI Struktur</label>
-        <input type="file" id="ss_design">
-
-        <label>Kendala / Ket</label>
-        <textarea id="kendala"></textarea>
-
-        <button class="save-btn"
-        onclick="saveTask()">
-
-            SAVE TASK
-
-        </button>
+    <div class="category-list"
+    id="category-list">
 
     </div>
+
     `;
+
+    renderCategoryList();
+
 }
+
+
+function renderCategoryList(){
+
+    const categoryList =
+    document.getElementById("category-list");
+
+    if(!categoryList) return;
+
+    categoryList.innerHTML = "";
+
+    allCategories.forEach(cat=>{
+
+        categoryList.innerHTML += `
+
+        <div class="category-item">
+
+            ${cat.id}.
+            ${cat.nama_kategori}
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+
+async function saveCategory(){
+
+    const nama_kategori =
+    document.getElementById(
+        "nama_kategori"
+    ).value;
+
+    const response =
+    await fetch("/save_category",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+            nama_kategori
+        })
+
+    });
+
+    const result =
+    await response.json();
+
+    alert(result.message);
+
+    await loadCategories();
+
+    renderCategoryList();
+
+}
+
+
+function showForm(task=null){
+
+    let kategoriOptions = '';
+
+    allCategories.forEach(cat=>{
+
+        kategoriOptions += `
+
+        <option
+        value="${cat.nama_kategori}"
+
+        ${
+            task?.kategori==
+            cat.nama_kategori
+            ? 'selected'
+            : ''
+        }>
+
+            ${cat.nama_kategori}
+
+        </option>
+
+        `;
+
+    });
+
+    document.getElementById("content")
+    .innerHTML = `
+
+    <input type="hidden"
+    id="task_id"
+    value="${task ? task.id : ''}">
+
+    <label>No Task</label>
+
+    <input type="text"
+    id="no_task"
+    value="${task ? task.no_task : ''}">
+
+    <label>Jenis Kategori</label>
+
+    <select id="kategori">
+
+        ${kategoriOptions}
+
+    </select>
+
+    <label>Judul</label>
+
+    <input type="text"
+    id="judul"
+    value="${task ? task.judul : ''}">
+
+    <label>Detail</label>
+
+    <textarea id="detail">${task ? task.detail : ''}</textarea>
+
+    <label>Detail Tambahan</label>
+
+    <textarea id="detail_tambahan">${task ? task.detail_tambahan : ''}</textarea>
+
+    <label>File yg di Update</label>
+
+    <textarea id="file_update">${task ? task.file_update : ''}</textarea>
+
+    <label>Sumber File Master</label>
+
+    <input type="text"
+    id="sumber_master"
+    value="${task ? task.sumber_master : ''}">
+
+    <label>Metode</label>
+
+    <input type="text"
+    id="metode"
+    value="${task ? task.metode : ''}">
+
+    <label>Human / AI Agent</label>
+
+    <input type="text"
+    id="ai_agent"
+    value="${task ? task.ai_agent : ''}">
+
+    <label>Status</label>
+
+    <select id="status">
+
+        <option ${
+            task?.status=='Pending'
+            ? 'selected' : ''
+        }>Pending</option>
+
+        <option ${
+            task?.status=='Finish'
+            ? 'selected' : ''
+        }>Finish</option>
+
+    </select>
+
+    <label>Github Update</label>
+
+    <select id="github_update">
+
+        <option ${
+            task?.github_update=='No'
+            ? 'selected' : ''
+        }>No</option>
+
+        <option ${
+            task?.github_update=='Yes'
+            ? 'selected' : ''
+        }>Yes</option>
+
+    </select>
+
+    <label>Deadline</label>
+
+    <input type="date"
+    id="date_finish"
+    value="${task ? task.date_finish : ''}">
+
+    <label>SS Design UI</label>
+
+    <input type="file"
+    id="ss_design">
+
+    <label>Kendala</label>
+
+    <textarea id="kendala">${task ? task.kendala : ''}</textarea>
+
+    <button class="save-btn"
+    onclick="saveTask()">
+
+        SAVE TASK
+
+    </button>
+
+    `;
+
+}
+
 
 async function saveTask(){
 
     const formData = new FormData();
 
-    formData.append("no_task",
-    document.getElementById("no_task").value);
+    formData.append(
+        "task_id",
+        document.getElementById("task_id").value
+    );
 
-    formData.append("judul",
-    document.getElementById("judul").value);
+    formData.append(
+        "no_task",
+        document.getElementById("no_task").value
+    );
 
-    formData.append("detail",
-    document.getElementById("detail").value);
+    formData.append(
+        "kategori",
+        document.getElementById("kategori").value
+    );
 
-    formData.append("detail_tambahan",
-    document.getElementById("detail_tambahan").value);
+    formData.append(
+        "judul",
+        document.getElementById("judul").value
+    );
 
-    formData.append("file_update",
-    document.getElementById("file_update").value);
+    formData.append(
+        "detail",
+        document.getElementById("detail").value
+    );
 
-    formData.append("sumber_master",
-    document.getElementById("sumber_master").value);
+    formData.append(
+        "detail_tambahan",
+        document.getElementById(
+            "detail_tambahan"
+        ).value
+    );
 
-    formData.append("metode",
-    document.getElementById("metode").value);
+    formData.append(
+        "file_update",
+        document.getElementById(
+            "file_update"
+        ).value
+    );
 
-    formData.append("ai_agent",
-    document.getElementById("ai_agent").value);
+    formData.append(
+        "sumber_master",
+        document.getElementById(
+            "sumber_master"
+        ).value
+    );
 
-    formData.append("push_github",
-    document.getElementById("push_github").value);
+    formData.append(
+        "metode",
+        document.getElementById(
+            "metode"
+        ).value
+    );
 
-    formData.append("status",
-    document.getElementById("status").value);
+    formData.append(
+        "ai_agent",
+        document.getElementById(
+            "ai_agent"
+        ).value
+    );
 
-    formData.append("github_update",
-    document.getElementById("github_update").value);
+    formData.append(
+        "status",
+        document.getElementById(
+            "status"
+        ).value
+    );
 
-    formData.append("date_finish",
-    document.getElementById("date_finish").value);
+    formData.append(
+        "github_update",
+        document.getElementById(
+            "github_update"
+        ).value
+    );
 
-    formData.append("kendala",
-    document.getElementById("kendala").value);
+    formData.append(
+        "date_finish",
+        document.getElementById(
+            "date_finish"
+        ).value
+    );
 
-    formData.append("ss_design",
-    document.getElementById("ss_design").files[0]);
+    formData.append(
+        "kendala",
+        document.getElementById(
+            "kendala"
+        ).value
+    );
 
+    const fileInput =
+    document.getElementById(
+        "ss_design"
+    );
+
+    if(fileInput.files.length > 0){
+
+        formData.append(
+            "ss_design",
+            fileInput.files[0]
+        );
+
+    }
+
+    const response =
     await fetch("/save_task",{
+
         method:"POST",
         body:formData
+
     });
 
-    alert("TASK SAVED");
+    const result =
+    await response.json();
 
-    location.reload();
+    alert(result.message);
+
+    await loadTasks();
+
+    goHome();
 
 }
 
+
 function viewTask(id){
 
-    const task = allTasks.find(t=>t.id==id);
+    const task =
+    allTasks.find(t=>t.id==id);
 
-    document.getElementById("content").innerHTML = `
+    document.getElementById("content")
+    .innerHTML = `
 
     <div class="read-box">
 
@@ -397,64 +754,72 @@ function viewTask(id){
 
         <h3>${task.judul}</h3>
 
-        <p><b>Detail:</b><br>
-        ${task.detail}</p>
+        <div class="info-box">
 
-        <p><b>Detail Tambahan:</b><br>
-        ${task.detail_tambahan}</p>
+            <div class="info-title">
+                KATEGORI
+            </div>
 
-        <p><b>File Update:</b><br>
-        ${task.file_update}</p>
+            ${task.kategori}
 
-        <p><b>Sumber Master:</b><br>
-        ${task.sumber_master}</p>
+        </div>
 
-        <p><b>Metode:</b><br>
-        ${task.metode}</p>
+        <div class="info-box">
 
-        <p><b>AI Agent:</b><br>
-        ${task.ai_agent}</p>
+            <div class="info-title">
+                DETAIL
+            </div>
 
-        <p><b>Push Github:</b><br>
-        ${task.push_github}</p>
+            ${task.detail}
 
-        <p><b>Status:</b><br>
-        ${task.status}</p>
+        </div>
 
-        <p><b>Github Update:</b><br>
-        ${task.github_update}</p>
+        <div class="info-box">
 
-        <p><b>Kendala:</b><br>
-        ${task.kendala}</p>
+            <div class="info-title">
+                STATUS
+            </div>
+
+            ${task.status}
+
+        </div>
 
         ${
             task.ss_design
             ?
-            `<img class="ss-preview"
-            src="/uploads/${task.ss_design}">`
+            `
+
+            <img class="ss-preview"
+            src="/uploads/${task.ss_design}">
+
+            `
             :
             ''
         }
 
         <div class="edit-btn"
-        onclick="showForm()">
+        onclick='showForm(${JSON.stringify(task)})'>
 
             EDIT TASK
 
         </div>
 
     </div>
+
     `;
-}
-
-function exportTask(id){
-
-    window.location.href =
-    "/export_task/" + id;
 
 }
 
-loadTasks();
+
+async function init(){
+
+    await loadCategories();
+
+    await loadTasks();
+
+}
+
+init();
 
 </script>
 

@@ -28,20 +28,26 @@ def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
+    # TASK TABLE
     cursor.execute("""
 
     CREATE TABLE IF NOT EXISTS tasks (
 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-        no_task TEXT,
+        no_task TEXT UNIQUE,
+
+        kategori TEXT,
+
         judul TEXT,
         detail TEXT,
         detail_tambahan TEXT,
         file_update TEXT,
         sumber_master TEXT,
         metode TEXT,
+
         ai_agent TEXT,
+
         push_github TEXT,
         date_finish TEXT,
         kendala TEXT,
@@ -52,6 +58,19 @@ def init_db():
         ss_design TEXT,
 
         created_at TEXT
+
+    )
+
+    """)
+
+    # CATEGORY TABLE
+    cursor.execute("""
+
+    CREATE TABLE IF NOT EXISTS categories (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        nama_kategori TEXT UNIQUE
 
     )
 
@@ -76,7 +95,84 @@ def home():
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    return send_from_directory(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+
+# =====================================================
+# SAVE CATEGORY
+# =====================================================
+
+@app.route("/save_category", methods=["POST"])
+def save_category():
+
+    try:
+
+        nama_kategori = request.json.get(
+            "nama_kategori"
+        )
+
+        conn = sqlite3.connect(DB_NAME)
+        cursor = conn.cursor()
+
+        cursor.execute("""
+
+        INSERT INTO categories (
+            nama_kategori
+        )
+
+        VALUES (?)
+
+        """, (nama_kategori,))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            "status": "success",
+            "message": "Kategori berhasil disimpan"
+        })
+
+    except Exception as e:
+
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        })
+
+
+# =====================================================
+# GET CATEGORY
+# =====================================================
+
+@app.route("/get_categories")
+def get_categories():
+
+    conn = sqlite3.connect(DB_NAME)
+
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+
+    SELECT * FROM categories
+    ORDER BY id DESC
+
+    """)
+
+    rows = cursor.fetchall()
+
+    categories = []
+
+    for row in rows:
+        categories.append(dict(row))
+
+    conn.close()
+
+    return jsonify(categories)
 
 
 # =====================================================
@@ -88,24 +184,95 @@ def save_task():
 
     try:
 
+        task_id = request.form.get("task_id")
+
         no_task = request.form.get("no_task")
+
+        kategori = request.form.get("kategori")
+
         judul = request.form.get("judul")
         detail = request.form.get("detail")
-        detail_tambahan = request.form.get("detail_tambahan")
-        file_update = request.form.get("file_update")
-        sumber_master = request.form.get("sumber_master")
+        detail_tambahan = request.form.get(
+            "detail_tambahan"
+        )
+
+        file_update = request.form.get(
+            "file_update"
+        )
+
+        sumber_master = request.form.get(
+            "sumber_master"
+        )
+
         metode = request.form.get("metode")
-        ai_agent = request.form.get("ai_agent")
-        push_github = request.form.get("push_github")
-        date_finish = request.form.get("date_finish")
+
+        ai_agent = request.form.get(
+            "ai_agent"
+        )
+
+        push_github = request.form.get(
+            "push_github"
+        )
+
+        date_finish = request.form.get(
+            "date_finish"
+        )
+
         kendala = request.form.get("kendala")
 
         status = request.form.get("status")
-        github_update = request.form.get("github_update")
 
-        ss_file = request.files.get("ss_design")
+        github_update = request.form.get(
+            "github_update"
+        )
+
+        ss_file = request.files.get(
+            "ss_design"
+        )
+
+        conn = sqlite3.connect(DB_NAME)
+
+        conn.row_factory = sqlite3.Row
+
+        cursor = conn.cursor()
+
+        # CHECK DUPLICATE
+        if not task_id:
+
+            cursor.execute("""
+
+            SELECT * FROM tasks
+            WHERE no_task=?
+
+            """, (no_task,))
+
+            existing = cursor.fetchone()
+
+            if existing:
+
+                conn.close()
+
+                return jsonify({
+                    "status": "error",
+                    "message": "NO TASK SUDAH ADA"
+                })
 
         filename = ""
+
+        if task_id:
+
+            cursor.execute("""
+
+            SELECT ss_design
+            FROM tasks
+            WHERE id=?
+
+            """, (task_id,))
+
+            old_task = cursor.fetchone()
+
+            if old_task:
+                filename = old_task["ss_design"]
 
         if ss_file and ss_file.filename != "":
 
@@ -118,67 +285,119 @@ def save_task():
 
             ss_file.save(save_path)
 
-        conn = sqlite3.connect(DB_NAME)
-        cursor = conn.cursor()
+        # UPDATE
+        if task_id:
 
-        cursor.execute("""
+            cursor.execute("""
 
-        INSERT INTO tasks (
+            UPDATE tasks SET
 
-            no_task,
-            judul,
-            detail,
-            detail_tambahan,
-            file_update,
-            sumber_master,
-            metode,
-            ai_agent,
-            push_github,
-            date_finish,
-            kendala,
+                no_task=?,
+                kategori=?,
+                judul=?,
+                detail=?,
+                detail_tambahan=?,
+                file_update=?,
+                sumber_master=?,
+                metode=?,
+                ai_agent=?,
+                push_github=?,
+                date_finish=?,
+                kendala=?,
+                status=?,
+                github_update=?,
+                ss_design=?
 
-            status,
-            github_update,
+            WHERE id=?
 
-            ss_design,
+            """, (
 
-            created_at
+                no_task,
+                kategori,
+                judul,
+                detail,
+                detail_tambahan,
+                file_update,
+                sumber_master,
+                metode,
+                ai_agent,
+                push_github,
+                date_finish,
+                kendala,
+                status,
+                github_update,
+                filename,
+                task_id
 
-        )
+            ))
 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            message = "TASK UPDATED"
 
-        """, (
+        else:
 
-            no_task,
-            judul,
-            detail,
-            detail_tambahan,
-            file_update,
-            sumber_master,
-            metode,
-            ai_agent,
-            push_github,
-            date_finish,
-            kendala,
+            # INSERT
+            cursor.execute("""
 
-            status,
-            github_update,
+            INSERT INTO tasks (
 
-            filename,
+                no_task,
+                kategori,
+                judul,
+                detail,
+                detail_tambahan,
+                file_update,
+                sumber_master,
+                metode,
+                ai_agent,
+                push_github,
+                date_finish,
+                kendala,
 
-            datetime.now().strftime(
-                "%Y-%m-%d %H:%M:%S"
+                status,
+                github_update,
+
+                ss_design,
+
+                created_at
+
             )
 
-        ))
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+            """, (
+
+                no_task,
+                kategori,
+                judul,
+                detail,
+                detail_tambahan,
+                file_update,
+                sumber_master,
+                metode,
+                ai_agent,
+                push_github,
+                date_finish,
+                kendala,
+
+                status,
+                github_update,
+
+                filename,
+
+                datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+
+            ))
+
+            message = "TASK SAVED"
 
         conn.commit()
         conn.close()
 
         return jsonify({
             "status": "success",
-            "message": "Task berhasil disimpan"
+            "message": message
         })
 
     except Exception as e:
@@ -205,7 +424,16 @@ def get_tasks():
     cursor.execute("""
 
     SELECT * FROM tasks
-    ORDER BY id DESC
+
+    ORDER BY
+    CASE
+        WHEN date_finish IS NULL
+        OR date_finish=''
+        THEN 1
+        ELSE 0
+    END,
+
+    date_finish ASC
 
     """)
 
@@ -219,129 +447,6 @@ def get_tasks():
     conn.close()
 
     return jsonify(tasks)
-
-
-# =====================================================
-# EXPORT TASK TXT
-# =====================================================
-
-@app.route("/export_task/<int:task_id>")
-def export_task(task_id):
-
-    conn = sqlite3.connect(DB_NAME)
-
-    conn.row_factory = sqlite3.Row
-
-    cursor = conn.cursor()
-
-    cursor.execute("""
-
-    SELECT * FROM tasks
-    WHERE id=?
-
-    """, (task_id,))
-
-    task = cursor.fetchone()
-
-    conn.close()
-
-    if not task:
-        return "Task not found"
-
-    content = f"""
-
-TASK : {task['no_task']}
-
-==================================================
-
-JUDUL
---------------------------------------------------
-{task['judul']}
-
-==================================================
-
-DETAIL
---------------------------------------------------
-{task['detail']}
-
-==================================================
-
-DETAIL TAMBAHAN
---------------------------------------------------
-{task['detail_tambahan']}
-
-==================================================
-
-FILE UPDATE
---------------------------------------------------
-{task['file_update']}
-
-==================================================
-
-SUMBER FILE MASTER
---------------------------------------------------
-{task['sumber_master']}
-
-==================================================
-
-METODE PENGERJAAN
---------------------------------------------------
-{task['metode']}
-
-==================================================
-
-AI AGENT
---------------------------------------------------
-{task['ai_agent']}
-
-==================================================
-
-PUSH GITHUB
---------------------------------------------------
-{task['push_github']}
-
-==================================================
-
-STATUS
---------------------------------------------------
-{task['status']}
-
-==================================================
-
-GITHUB UPDATE
---------------------------------------------------
-{task['github_update']}
-
-==================================================
-
-DATE FINISH
---------------------------------------------------
-{task['date_finish']}
-
-==================================================
-
-KENDALA / KETERANGAN
---------------------------------------------------
-{task['kendala']}
-
-==================================================
-
-"""
-
-    export_filename = f"{task['no_task']}.txt"
-
-    with open(
-        export_filename,
-        "w",
-        encoding="utf-8"
-    ) as f:
-
-        f.write(content)
-
-    return send_file(
-        export_filename,
-        as_attachment=True
-    )
 
 
 # =====================================================
