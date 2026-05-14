@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>DEQBOT - Agentic AI System</title>
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap"
+rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#050505;
+    color:white;
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+}
+
+/* =========================
+BACKGROUND EFFECT
+========================= */
+
+.bg-grid{
+    position:fixed;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    background-image:
+    linear-gradient(rgba(0,255,170,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,170,0.05) 1px, transparent 1px);
+
+    background-size:40px 40px;
+
+    z-index:-2;
+}
+
+.glow{
+    position:fixed;
+    width:500px;
+    height:500px;
+    background:#00ffaa22;
+    filter:blur(140px);
+    border-radius:50%;
+    top:-120px;
+    right:-120px;
+    z-index:-1;
+}
+
+/* =========================
+TOPBAR
+========================= */
+
+.topbar{
+    width:100%;
+    height:80px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 30px;
+    position:fixed;
+    top:0;
+    z-index:1000;
+    backdrop-filter:blur(10px);
+    background:#050505bb;
+    border-bottom:1px solid #1c1c1c;
+}
+
+.logo{
+    font-size:28px;
+    font-family:'Orbitron',sans-serif;
+    font-weight:700;
+    color:#00ffaa;
+    letter-spacing:2px;
+}
+
+.nav{
+    display:flex;
+    gap:25px;
+    align-items:center;
+}
+
+.nav a{
+    color:#aaa;
+    text-decoration:none;
+    font-size:15px;
+    transition:0.3s;
+}
+
+.nav a:hover{
+    color:#00ffaa;
+}
+
+.launch-btn{
+    padding:12px 22px;
+    border-radius:12px;
+    background:#00ffaa;
+    color:black;
+    font-weight:600;
+    text-decoration:none;
+    transition:0.3s;
+}
+
+.launch-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 0 25px #00ffaa55;
+}
+
+/* =========================
+HERO
+========================= */
+
+.hero{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:120px 20px 60px;
+}
+
+.hero-inner{
+    max-width:950px;
+}
+
+.hero-badge{
+    display:inline-block;
+    padding:10px 18px;
+    border:1px solid #00ffaa33;
+    border-radius:50px;
+    color:#00ffaa;
+    margin-bottom:25px;
+    background:#00ffaa10;
+    font-size:14px;
+}
+
+.hero h1{
+    font-size:72px;
+    line-height:1.1;
+    margin-bottom:25px;
+    font-family:'Orbitron',sans-serif;
+}
+
+.hero h1 span{
+    color:#00ffaa;
+}
+
+.hero p{
+    color:#aaa;
+    font-size:20px;
+    line-height:1.8;
+    max-width:750px;
+    margin:auto;
+}
+
+.hero-actions{
+    margin-top:45px;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.primary-btn{
+    padding:16px 30px;
+    border-radius:14px;
+    background:#00ffaa;
+    color:black;
+    font-weight:700;
+    text-decoration:none;
+    transition:0.3s;
+}
+
+.primary-btn:hover{
+    transform:translateY(-4px);
+    box-shadow:0 0 35px #00ffaa55;
+}
+
+.secondary-btn{
+    padding:16px 30px;
+    border-radius:14px;
+    border:1px solid #2a2a2a;
+    color:white;
+    text-decoration:none;
+    transition:0.3s;
+}
+
+.secondary-btn:hover{
+    border-color:#00ffaa;
+    color:#00ffaa;
+}
+
+/* =========================
+FEATURE SECTION
+========================= */
+
+.section{
+    padding:90px 20px;
+}
+
+.section-title{
+    text-align:center;
+    margin-bottom:60px;
+}
+
+.section-title h2{
+    font-size:42px;
+    margin-bottom:15px;
+    font-family:'Orbitron',sans-serif;
+}
+
+.section-title p{
+    color:#888;
+    max-width:700px;
+    margin:auto;
+    line-height:1.8;
+}
+
+.features{
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(280px,1fr));
+    gap:25px;
+    max-width:1200px;
+    margin:auto;
+}
+
+.feature-card{
+    background:#101010;
+    border:1px solid #1f1f1f;
+    border-radius:20px;
+    padding:35px;
+    transition:0.3s;
+}
+
+.feature-card:hover{
+    border-color:#00ffaa55;
+    transform:translateY(-6px);
+}
+
+.feature-icon{
+    width:65px;
+    height:65px;
+    border-radius:16px;
+    background:#00ffaa15;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    margin-bottom:25px;
+}
+
+.feature-card h3{
+    margin-bottom:15px;
+    font-size:22px;
+}
+
+.feature-card p{
+    color:#888;
+    line-height:1.8;
+}
+
+/* =========================
+AI PANEL
+========================= */
+
+.ai-panel{
+    max-width:1200px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:40px;
+    align-items:center;
+}
+
+.panel-box{
+    background:#101010;
+    border:1px solid #1f1f1f;
+    border-radius:25px;
+    padding:40px;
+}
+
+.panel-box h2{
+    font-size:42px;
+    margin-bottom:20px;
+    font-family:'Orbitron',sans-serif;
+}
+
+.panel-box p{
+    color:#888;
+    line-height:1.9;
+    margin-bottom:25px;
+}
+
+.ai-log{
+    background:black;
+    border-radius:20px;
+    padding:25px;
+    border:1px solid #00ffaa33;
+}
+
+.log-item{
+    padding:14px;
+    border-bottom:1px solid #1f1f1f;
+    color:#00ffaa;
+    font-size:14px;
+}
+
+.log-item:last-child{
+    border-bottom:none;
+}
+
+/* =========================
+CTA
+========================= */
+
+.cta{
+    padding:100px 20px;
+}
+
+.cta-box{
+    max-width:1000px;
+    margin:auto;
+    background:linear-gradient(
+        135deg,
+        #00ffaa22,
+        #111
+    );
+
+    border:1px solid #00ffaa33;
+    border-radius:30px;
+    padding:70px 40px;
+    text-align:center;
+}
+
+.cta-box h2{
+    font-size:52px;
+    margin-bottom:20px;
+    font-family:'Orbitron',sans-serif;
+}
+
+.cta-box p{
+    color:#bbb;
+    line-height:1.8;
+    max-width:700px;
+    margin:auto auto 35px;
+}
+
+/* =========================
+FOOTER
+========================= */
+
+.footer{
+    border-top:1px solid #1a1a1a;
+    padding:35px 20px;
+    text-align:center;
+    color:#666;
+}
+
+/* =========================
+RESPONSIVE
+========================= */
+
+@media(max-width:900px){
+
+    .hero h1{
+        font-size:48px;
+    }
+
+    .ai-panel{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:600px){
+
+    .topbar{
+        padding:0 15px;
+    }
+
+    .nav{
+        display:none;
+    }
+
+    .hero h1{
+        font-size:38px;
+    }
+
+    .hero p{
+        font-size:16px;
+    }
+
+    .section-title h2{
+        font-size:32px;
+    }
+
+    .cta-box h2{
+        font-size:34px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="bg-grid"></div>
+<div class="glow"></div>
+
+<!-- =========================
+TOPBAR
+========================= -->
+
+<div class="topbar">
+
+    <div class="logo">
+        DEQBOT
+    </div>
+
+    <div class="nav">
+
+        <a href="#">Home</a>
+        <a href="#">Features</a>
+        <a href="#">Automation</a>
+        <a href="#">Agentic AI</a>
+
+        <a href="https://app.deqbot.com"
+        class="launch-btn">
+
+            Launch App
+
+        </a>
+
+    </div>
+
+</div>
+
+<!-- =========================
+HERO
+========================= -->
+
+<section class="hero">
+
+    <div class="hero-inner">
+
+        <div class="hero-badge">
+            NEXT GENERATION AGENTIC AI SYSTEM
+        </div>
+
+        <h1>
+
+            Autonomous
+            <span>AI Agent</span>
+            For Modern Business
+
+        </h1>
+
+        <p>
+
+            DEQBOT is an advanced Agentic AI platform
+            designed to automate workflows,
+            analyze business operations,
+            execute intelligent decisions,
+            and assist human productivity
+            through autonomous AI systems.
+
+        </p>
+
+        <div class="hero-actions">
+
+            <a href="https://app.deqbot.com"
+            class="primary-btn">
+
+                Open Dashboard
+
+            </a>
+
+            <a href="#features"
+            class="secondary-btn">
+
+                Explore Features
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- =========================
+FEATURES
+========================= -->
+
+<section class="section"
+id="features">
+
+    <div class="section-title">
+
+        <h2>
+            Agentic AI Ecosystem
+        </h2>
+
+        <p>
+
+            Designed for automation,
+            intelligent orchestration,
+            client management,
+            workflow execution,
+            and future autonomous systems.
+
+        </p>
+
+    </div>
+
+    <div class="features">
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🤖
+            </div>
+
+            <h3>
+                AI Agent Automation
+            </h3>
+
+            <p>
+
+                Autonomous AI workflows capable
+                of thinking, analyzing,
+                and executing tasks dynamically.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                📡
+            </div>
+
+            <h3>
+                Smart Communication
+            </h3>
+
+            <p>
+
+                Integrated communication system
+                for WhatsApp, CRM,
+                client interaction,
+                and AI-assisted responses.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🧠
+            </div>
+
+            <h3>
+                Agentic Decision System
+            </h3>
+
+            <p>
+
+                Intelligent AI capable
+                of planning workflows,
+                prioritizing tasks,
+                and generating execution logic.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                ⚙️
+            </div>
+
+            <h3>
+                Workflow Automation
+            </h3>
+
+            <p>
+
+                Build scalable business automation
+                connected with AI orchestration
+                and real-time execution systems.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🔒
+            </div>
+
+            <h3>
+                Private AI Infrastructure
+            </h3>
+
+            <p>
+
+                Control your own AI ecosystem
+                securely with customizable
+                modular architecture.
+
+            </p>
+
+        </div>
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🚀
+            </div>
+
+            <h3>
+                Future Ready System
+            </h3>
+
+            <p>
+
+                Built for future AI-native products,
+                automation infrastructure,
+                and digital business scaling.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- =========================
+AI PANEL
+========================= -->
+
+<section class="section">
+
+    <div class="ai-panel">
+
+        <div class="panel-box">
+
+            <h2>
+                AI Operational Core
+            </h2>
+
+            <p>
+
+                DEQBOT combines autonomous AI,
+                business intelligence,
+                workflow orchestration,
+                and adaptive automation
+                into one connected ecosystem.
+
+            </p>
+
+            <a href="https://app.deqbot.com"
+            class="primary-btn">
+
+                Access System
+
+            </a>
+
+        </div>
+
+        <div class="ai-log">
+
+            <div class="log-item">
+                ✅ AI Agent analyzing workflow...
+            </div>
+
+            <div class="log-item">
+                ✅ CRM synchronization active...
+            </div>
+
+            <div class="log-item">
+                ✅ Autonomous automation started...
+            </div>
+
+            <div class="log-item">
+                ✅ Prospect segmentation complete...
+            </div>
+
+            <div class="log-item">
+                ✅ Business identity optimization...
+            </div>
+
+            <div class="log-item">
+                ✅ AI orchestration online...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- =========================
+CTA
+========================= -->
+
+<section class="cta">
+
+    <div class="cta-box">
+
+        <h2>
+            Build The Future
+            With Agentic AI
+        </h2>
+
+        <p>
+
+            Transform your workflows,
+            automation systems,
+            and business operations
+            using DEQBOT autonomous AI platform.
+
+        </p>
+
+        <a href="https://app.deqbot.com"
+        class="primary-btn">
+
+            Launch DEQBOT
+
+        </a>
+
+    </div>
+
+</section>
+
+<!-- =========================
+FOOTER
+========================= -->
+
+<div class="footer">
+
+    © 2026 DEQBOT — Autonomous Agentic AI Platform
+
+</div>
+
+</body>
+</html>

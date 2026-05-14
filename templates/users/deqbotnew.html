@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>DEQBOT</title>
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap"
+rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#050505;
+    color:white;
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+    padding-bottom:90px;
+}
+
+/* =========================
+BACKGROUND
+========================= */
+
+.bg-grid{
+    position:fixed;
+    inset:0;
+    background-image:
+    linear-gradient(rgba(0,255,170,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,170,0.05) 1px, transparent 1px);
+
+    background-size:40px 40px;
+
+    z-index:-2;
+}
+
+.glow{
+    position:fixed;
+    width:450px;
+    height:450px;
+    background:#00ffaa22;
+    border-radius:50%;
+    filter:blur(120px);
+    top:-150px;
+    right:-150px;
+    z-index:-1;
+}
+
+/* =========================
+TOPBAR
+========================= */
+
+.topbar{
+    height:65px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 15px;
+    background:#0b0b0bdd;
+    border-bottom:1px solid #1d1d1d;
+    position:sticky;
+    top:0;
+    z-index:1000;
+    backdrop-filter:blur(10px);
+}
+
+.logo{
+    font-family:'Orbitron',sans-serif;
+    color:#00ffaa;
+    font-size:24px;
+    font-weight:700;
+}
+
+.icon-btn{
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    background:#151515;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    font-size:20px;
+}
+
+/* =========================
+SIDEBAR
+========================= */
+
+.sidebar{
+    position:fixed;
+    top:0;
+    left:-290px;
+    width:280px;
+    height:100vh;
+    background:#111;
+    border-right:1px solid #222;
+    z-index:3000;
+    transition:0.3s;
+    padding:20px;
+    overflow:auto;
+}
+
+.sidebar.active{
+    left:0;
+}
+
+.sidebar-title{
+    color:#00ffaa;
+    font-size:24px;
+    margin-bottom:30px;
+    font-family:'Orbitron',sans-serif;
+}
+
+.sidebar-item{
+    padding:15px;
+    border-radius:14px;
+    background:#181818;
+    margin-bottom:12px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.sidebar-item:hover{
+    background:#00ffaa22;
+    border:1px solid #00ffaa44;
+}
+
+/* =========================
+CONTENT
+========================= */
+
+.content{
+    padding:15px;
+}
+
+/* =========================
+SLIDER
+========================= */
+
+.slider{
+    display:flex;
+    gap:15px;
+    overflow-x:auto;
+    padding-bottom:10px;
+    margin-top:15px;
+}
+
+.slider::-webkit-scrollbar{
+    display:none;
+}
+
+.info-card{
+    min-width:260px;
+    background:#121212;
+    border:1px solid #1f1f1f;
+    border-radius:20px;
+    padding:22px;
+}
+
+.info-card h3{
+    color:#00ffaa;
+    margin-bottom:12px;
+}
+
+.info-card p{
+    color:#aaa;
+    line-height:1.7;
+}
+
+/* =========================
+SECTION
+========================= */
+
+.section{
+    margin-top:25px;
+}
+
+.section-title{
+    color:#00ffaa;
+    margin-bottom:15px;
+    font-size:20px;
+    font-weight:600;
+}
+
+/* =========================
+BOX
+========================= */
+
+.box{
+    background:#121212;
+    border:1px solid #1f1f1f;
+    border-radius:18px;
+    padding:18px;
+}
+
+/* =========================
+DEQ SAY
+========================= */
+
+.deq-say{
+    line-height:1.9;
+    color:#ddd;
+}
+
+/* =========================
+ACTIVITY
+========================= */
+
+.activity-item{
+    background:#1a1a1a;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:12px;
+    color:#bbb;
+    font-size:14px;
+}
+
+/* =========================
+CHAT
+========================= */
+
+.chat-container{
+    margin-top:25px;
+}
+
+.chat-messages{
+    height:420px;
+    overflow:auto;
+    padding:15px;
+    background:#0f0f0f;
+    border-radius:18px;
+    border:1px solid #1d1d1d;
+}
+
+.message{
+    margin-bottom:15px;
+    padding:14px;
+    border-radius:14px;
+    line-height:1.7;
+    max-width:90%;
+    white-space:pre-wrap;
+}
+
+.user-message{
+    background:#00ffaa22;
+    margin-left:auto;
+}
+
+.ai-message{
+    background:#181818;
+}
+
+.chat-input-area{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.chat-input{
+    flex:1;
+    background:#151515;
+    border:none;
+    border-radius:14px;
+    padding:15px;
+    color:white;
+    outline:none;
+}
+
+.send-btn{
+    width:60px;
+    border:none;
+    border-radius:14px;
+    background:#00ffaa;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* =========================
+PROFILE
+========================= */
+
+.profile-box{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.avatar{
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:#00ffaa22;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+}
+
+/* =========================
+PROSPECT
+========================= */
+
+.prospect-item{
+    background:#181818;
+    padding:15px;
+    border-radius:14px;
+    margin-bottom:12px;
+}
+
+.prospect-name{
+    color:#00ffaa;
+    margin-bottom:5px;
+}
+
+/* =========================
+FOOTER NAV
+========================= */
+
+.footer-nav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:75px;
+    background:#0d0d0d;
+    border-top:1px solid #1d1d1d;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    z-index:4000;
+}
+
+.footer-btn{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#888;
+    font-size:12px;
+    cursor:pointer;
+}
+
+.footer-btn.active{
+    color:#00ffaa;
+}
+
+.footer-icon{
+    font-size:22px;
+    margin-bottom:4px;
+}
+
+/* =========================
+RESPONSIVE
+========================= */
+
+@media(min-width:900px){
+
+    .content{
+        max-width:850px;
+        margin:auto;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="bg-grid"></div>
+<div class="glow"></div>
+
+<!-- =========================
+SIDEBAR
+========================= -->
+
+<div class="sidebar"
+id="sidebar">
+
+    <div class="sidebar-title">
+        DEQBOT
+    </div>
+
+    <div class="sidebar-item"
+    onclick="showHome()">
+
+        🏠 Dashboard
+
+    </div>
+
+    <div class="sidebar-item"
+    onclick="showProspects()">
+
+        👥 List Kontak Prospek
+
+    </div>
+
+    <div class="sidebar-item"
+    onclick="showBusinessIdentity()">
+
+        🏢 Business Identity
+
+    </div>
+
+    <div class="sidebar-item"
+    onclick="showChat()">
+
+        🤖 AI Chat
+
+    </div>
+
+    <div class="sidebar-item">
+
+        ⚙️ Pengaturan
+
+    </div>
+
+</div>
+
+<!-- =========================
+TOPBAR
+========================= -->
+
+<div class="topbar">
+
+    <div class="icon-btn"
+    onclick="toggleSidebar()">
+
+        ☰
+
+    </div>
+
+    <div class="logo">
+        DEQBOT
+    </div>
+
+    <div class="icon-btn">
+
+        🔔
+
+    </div>
+
+</div>
+
+<!-- =========================
+MAIN CONTENT
+========================= -->
+
+<div class="content"
+id="content">
+
+</div>
+
+<!-- =========================
+FOOTER NAV
+========================= -->
+
+<div class="footer-nav">
+
+    <div class="footer-btn active"
+    onclick="showHome()">
+
+        <div class="footer-icon">
+            🏠
+        </div>
+
+        Home
+
+    </div>
+
+    <div class="footer-btn"
+    onclick="showChat()">
+
+        <div class="footer-icon">
+            💬
+        </div>
+
+        Chat
+
+    </div>
+
+    <div class="footer-btn">
+
+        <div class="footer-icon">
+            👤
+        </div>
+
+        Account
+
+    </div>
+
+</div>
+<script>
+
+/* =========================
+GLOBAL
+========================= */
+
+const API_KEY = localStorage.getItem(
+    "x_deq_key"
+) || "";
+
+let profileData = {};
+let prospectData = [];
+let historyData = [];
+
+/* =========================
+SIDEBAR
+========================= */
+
+function toggleSidebar(){
+
+    document
+    .getElementById("sidebar")
+    .classList
+    .toggle("active");
+
+}
+
+/* =========================
+HOME
+========================= */
+
+async function showHome(){
+
+    document.getElementById("content")
+    .innerHTML = `
+
+    <!-- PROFILE -->
+
+    <div class="section">
+
+        <div class="box">
+
+            <div class="profile-box">
+
+                <div class="avatar">
+                    🤖
+                </div>
+
+                <div>
+
+                    <h2 id="profile-name">
+                        Loading...
+                    </h2>
+
+                    <p id="profile-email"
+                    style="color:#888;margin-top:5px;">
+
+                        loading...
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- SLIDER -->
+
+    <div class="slider">
+
+        <div class="info-card">
+
+            <h3>
+                AI Automation
+            </h3>
+
+            <p>
+
+                Autonomous workflow system
+                connected with business logic.
+
+            </p>
+
+        </div>
+
+        <div class="info-card">
+
+            <h3>
+                Prospect System
+            </h3>
+
+            <p>
+
+                Smart AI prospect segmentation
+                and client orchestration.
+
+            </p>
+
+        </div>
+
+        <div class="info-card">
+
+            <h3>
+                Agentic Thinking
+            </h3>
+
+            <p>
+
+                AI planning and autonomous
+                decision execution system.
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- DEQ SAY -->
+
+    <div class="section">
+
+        <div class="section-title">
+
+            DEQ Say
+
+        </div>
+
+        <div class="box">
+
+            <div class="deq-say">
+
+                Halo User,
+                AI Agentic System saat ini
+                sedang melakukan analisa
+                workflow dan aktivitas bisnis.
+
+                Sistem mendeteksi beberapa
+                prioritas task penting
+                yang dapat dioptimalkan.
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ACTIVITY -->
+
+    <div class="section">
+
+        <div class="section-title">
+
+            DEQ Activity
+
+        </div>
+
+        <div class="box">
+
+            <div class="activity-item">
+                ✅ AI orchestration online
+            </div>
+
+            <div class="activity-item">
+                ✅ Prospect analyzer running
+            </div>
+
+            <div class="activity-item">
+                ✅ Workflow automation active
+            </div>
+
+            <div class="activity-item">
+                ✅ Memory synchronization success
+            </div>
+
+            <div class="activity-item">
+                ✅ Business optimization started
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
+
+    await loadProfile();
+
+}
+
+/* =========================
+LOAD PROFILE
+========================= */
+
+async function loadProfile(){
+
+    try{
+
+        const response =
+        await fetch(
+            "/api/client/profile",
+            {
+                headers:{
+                    "x_deq_key":API_KEY
+                }
+            }
+        );
+
+        const data =
+        await response.json();
+
+        profileData = data;
+
+        document.getElementById(
+            "profile-name"
+        ).innerText =
+        data.name || "DEQ User";
+
+        document.getElementById(
+            "profile-email"
+        ).innerText =
+        data.email || "No Email";
+
+    }catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+/* =========================
+SHOW CHAT
+========================= */
+
+async function showChat(){
+
+    document.getElementById("content")
+    .innerHTML = `
+
+    <div class="section">
+
+        <div class="section-title">
+
+            AI Chat
+
+        </div>
+
+        <div class="chat-container">
+
+            <div class="chat-messages"
+            id="chat-messages">
+
+            </div>
+
+            <div class="chat-input-area">
+
+                <input type="text"
+                id="chat-input"
+                class="chat-input"
+                placeholder="Tanyakan sesuatu...">
+
+                <button class="send-btn"
+                onclick="sendMessage()">
+
+                    ➤
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
+
+    await loadHistory();
+
+}
+
+/* =========================
+LOAD HISTORY
+========================= */
+
+async function loadHistory(){
+
+    try{
+
+        const response =
+        await fetch(
+            "/api/client/history",
+            {
+                headers:{
+                    "x_deq_key":API_KEY
+                }
+            }
+        );
+
+        const data =
+        await response.json();
+
+        historyData = data;
+
+        renderHistory();
+
+    }catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+/* =========================
+RENDER HISTORY
+========================= */
+
+function renderHistory(){
+
+    const chatBox =
+    document.getElementById(
+        "chat-messages"
+    );
+
+    if(!chatBox) return;
+
+    chatBox.innerHTML = "";
+
+    historyData.forEach(msg=>{
+
+        chatBox.innerHTML += `
+
+        <div class="message
+        ${msg.role=='user'
+        ? 'user-message'
+        : 'ai-message'}">
+
+            ${msg.content}
+
+        </div>
+
+        `;
+
+    });
+
+    chatBox.scrollTop =
+    chatBox.scrollHeight;
+
+}
+
+/* =========================
+SEND MESSAGE
+========================= */
+
+async function sendMessage(){
+
+    const input =
+    document.getElementById(
+        "chat-input"
+    );
+
+    const message =
+    input.value.trim();
+
+    if(!message) return;
+
+    historyData.push({
+        role:"user",
+        content:message
+    });
+
+    renderHistory();
+
+    input.value = "";
+
+    try{
+
+        const response =
+        await fetch("/v1/chat",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json",
+                "x_deq_key":API_KEY
+            },
+
+            body:JSON.stringify({
+                message:message
+            })
+
+        });
+
+        const data =
+        await response.json();
+
+        historyData.push({
+
+            role:"assistant",
+
+            content:
+            data.response ||
+            "AI tidak memberikan response."
+
+        });
+
+        renderHistory();
+
+    }catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+/* =========================
+SHOW PROSPECTS
+========================= */
+
+async function showProspects(){
+
+    document.getElementById("content")
+    .innerHTML = `
+
+    <div class="section">
+
+        <div class="section-title">
+
+            List Kontak Prospek
+
+        </div>
+
+        <div id="prospect-list">
+
+            Loading...
+
+        </div>
+
+    </div>
+
+    `;
+
+    try{
+
+        const response =
+        await fetch(
+            "/api/client/prospects",
+            {
+                headers:{
+                    "x_deq_key":API_KEY
+                }
+            }
+        );
+
+        const data =
+        await response.json();
+
+        prospectData = data;
+
+        renderProspects();
+
+    }catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+/* =========================
+RENDER PROSPECT
+========================= */
+
+function renderProspects(){
+
+    const list =
+    document.getElementById(
+        "prospect-list"
+    );
+
+    list.innerHTML = "";
+
+    if(prospectData.length==0){
+
+        list.innerHTML = `
+
+        <div class="box">
+
+            Belum ada prospek.
+
+        </div>
+
+        `;
+
+        return;
+
+    }
+
+    prospectData.forEach(item=>{
+
+        list.innerHTML += `
+
+        <div class="prospect-item">
+
+            <div class="prospect-name">
+
+                ${item.name || 'No Name'}
+
+            </div>
+
+            <div>
+
+                ${item.phone || '-'}
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+}
+ 
+/* =========================
+BUSINESS IDENTITY
+========================= */
+
+async function showBusinessIdentity(){
+
+    document.getElementById("content")
+    .innerHTML = `
+
+    <div class="section">
+
+        <div class="section-title">
+
+            Business Identity
+
+        </div>
+
+        <div class="box">
+
+            <div style="
+                margin-bottom:15px;
+            ">
+
+                <label>
+                    Business Name
+                </label>
+
+                <input
+                id="biz-name"
+                class="chat-input"
+                style="margin-top:8px;"
+                placeholder="Nama bisnis">
+
+            </div>
+
+            <div style="
+                margin-bottom:15px;
+            ">
+
+                <label>
+                    Business Description
+                </label>
+
+                <textarea
+                id="biz-desc"
+                class="chat-input"
+                style="
+                    min-height:120px;
+                    resize:none;
+                    margin-top:8px;
+                "
+                placeholder="Deskripsi bisnis"></textarea>
+
+            </div>
+
+            <div style="
+                margin-bottom:15px;
+            ">
+
+                <label>
+                    Website
+                </label>
+
+                <input
+                id="biz-web"
+                class="chat-input"
+                style="margin-top:8px;"
+                placeholder="https://">
+
+            </div>
+
+            <button
+            class="send-btn"
+            style="
+                width:100%;
+                height:55px;
+                border-radius:14px;
+            "
+            onclick="saveBusinessIdentity()">
+
+                SAVE BUSINESS IDENTITY
+
+            </button>
+
+        </div>
+
+    </div>
+
+    `;
+
+    await loadBusinessIdentity();
+
+}
+
+/* =========================
+LOAD BUSINESS
+========================= */
+
+async function loadBusinessIdentity(){
+
+    try{
+
+        const response =
+        await fetch(
+            "/api/client/profile",
+            {
+                headers:{
+                    "x_deq_key":API_KEY
+                }
+            }
+        );
+
+        const data =
+        await response.json();
+
+        document.getElementById(
+            "biz-name"
+        ).value =
+        data.business_name || "";
+
+        document.getElementById(
+            "biz-desc"
+        ).value =
+        data.business_desc || "";
+
+        document.getElementById(
+            "biz-web"
+        ).value =
+        data.website || "";
+
+    }catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+/* =========================
+SAVE BUSINESS
+========================= */
+
+async function saveBusinessIdentity(){
+
+    const payload = {
+
+        business_name:
+        document.getElementById(
+            "biz-name"
+        ).value,
+
+        business_desc:
+        document.getElementById(
+            "biz-desc"
+        ).value,
+
+        website:
+        document.getElementById(
+            "biz-web"
+        ).value
+
+    };
+
+    try{
+
+        const response =
+        await fetch(
+            "/api/client/profile",
+            {
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json",
+                    "x_deq_key":API_KEY
+                },
+
+                body:JSON.stringify(payload)
+
+            }
+        );
+
+        const data =
+        await response.json();
+
+        alert(
+            data.message ||
+            "Business identity updated"
+        );
+
+    }catch(err){
+
+        console.log(err);
+
+    }
+
+}
+
+/* =========================
+ACCOUNT
+========================= */
+
+function showAccount(){
+
+    document.getElementById("content")
+    .innerHTML = `
+
+    <div class="section">
+
+        <div class="section-title">
+
+            Account
+
+        </div>
+
+        <div class="box">
+
+            <div style="
+                margin-bottom:20px;
+            ">
+
+                <label>
+                    API / TOKEN KEY
+                </label>
+
+                <input
+                id="token-input"
+                class="chat-input"
+                style="margin-top:8px;"
+                placeholder="x_deq_key"
+                value="${API_KEY}">
+
+            </div>
+
+            <button
+            class="send-btn"
+            style="
+                width:100%;
+                height:55px;
+                border-radius:14px;
+            "
+            onclick="saveToken()">
+
+                SAVE TOKEN
+
+            </button>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+/* =========================
+SAVE TOKEN
+========================= */
+
+function saveToken(){
+
+    const token =
+    document.getElementById(
+        "token-input"
+    ).value;
+
+    localStorage.setItem(
+        "x_deq_key",
+        token
+    );
+
+    alert(
+        "TOKEN SAVED"
+    );
+
+    location.reload();
+
+}
+
+/* =========================
+NOTIFICATION
+========================= */
+
+function showNotification(){
+
+    alert(
+        "DEQBOT Notification Center"
+    );
+
+}
+
+/* =========================
+AUTO ACTIVE NAV
+========================= */
+
+function setActiveFooter(index){
+
+    const buttons =
+    document.querySelectorAll(
+        ".footer-btn"
+    );
+
+    buttons.forEach(btn=>{
+        btn.classList.remove("active");
+    });
+
+    if(buttons[index]){
+
+        buttons[index]
+        .classList
+        .add("active");
+
+    }
+
+}
+
+/* =========================
+OVERRIDE NAV
+========================= */
+
+const oldShowHome = showHome;
+
+showHome = async function(){
+
+    setActiveFooter(0);
+
+    await oldShowHome();
+
+};
+
+const oldShowChat = showChat;
+
+showChat = async function(){
+
+    setActiveFooter(1);
+
+    await oldShowChat();
+
+};
+
+/* =========================
+FOOTER ACCOUNT
+========================= */
+
+document.addEventListener(
+    "click",
+    function(e){
+
+        const btn =
+        e.target.closest(
+            ".footer-btn"
+        );
+
+        if(!btn) return;
+
+        const text =
+        btn.innerText.trim();
+
+        if(text.includes("Account")){
+
+            setActiveFooter(2);
+
+            showAccount();
+
+        }
+
+    }
+);
+
+/* =========================
+AUTO CLOSE SIDEBAR
+========================= */
+
+document.addEventListener(
+    "click",
+    function(e){
+
+        const sidebar =
+        document.getElementById(
+            "sidebar"
+        );
+
+        const menuBtn =
+        e.target.closest(".icon-btn");
+
+        if(
+            !sidebar.contains(e.target)
+            &&
+            !menuBtn
+        ){
+
+            sidebar.classList.remove(
+                "active"
+            );
+
+        }
+
+    }
+);
+
+/* =========================
+INIT
+========================= */
+
+async function init(){
+
+    await showHome();
+
+}
+
+/* =========================
+START
+========================= */
+
+init();
+
+</script>
+
+</body>
+</html>

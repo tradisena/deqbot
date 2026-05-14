@@ -37,7 +37,7 @@ upload/
 .env.local
 config.secret
 secret.json
-
+credentials.json
 # =========================
 # VSCODE
 # =========================
