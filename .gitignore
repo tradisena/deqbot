@@ -1,64 +1,65 @@
 # =========================
-# PYTHON
+# PYTHON (Standard)
 # =========================
-
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
 # =========================
-# VENV
+# VENV (Lingkungan Virtual)
 # =========================
-
 venv/
 .env/
+env/
+ENV/
 
 # =========================
-# DATABASE
+# DATABASE (Data Sensitif)
 # =========================
-
 *.db
+*.sqlite3
 memory.db
 taskdeqbot.db
+database_ev.db
 
 # =========================
-# UPLOAD FILE
+# UPLOAD & STORAGE
 # =========================
-
 uploads/
 upload/
+storage/
 
 # =========================
-# SECRET
+# SECRET (Kunci & Akses)
 # =========================
-
 .env
 .env.local
+.env.*
 config.secret
 secret.json
 credentials.json
-# =========================
-# VSCODE
-# =========================
+client_secret.json
+*.pem
+*.key
+token.json
 
+# =========================
+# VSCODE & IDE
+# =========================
 .vscode/
+.idea/
 
 # =========================
-# WINDOWS
+# SISTEM OPERASI
 # =========================
-
 desktop.ini
 Thumbs.db
+.DS_Store
 
 # =========================
-# CACHE
+# CACHE & LOG
 # =========================
-
 .cache/
-
-# =========================
-# LOG
-# =========================
-
 *.log
+logs/
