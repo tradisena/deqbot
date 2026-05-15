@@ -1,124 +1,383 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Library - DEQCore.ai</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-white min-h-screen p-8">
+<!-- ========================================
+     CHARACTER LIBRARY PARTIAL MODULE
+========================================= -->
 
-    <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="mb-8 flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-purple-400">Character Library</h1>
-                <p class="text-gray-400">Rancang kepribadian dan gaya komunikasi AI Anda</p>
-            </div>
-            <div class="space-x-2">
-                <a href="/newdeq" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm font-semibold transition">Manage Clients</a>
-                <a href="/" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-semibold transition">Dashboard</a>
-            </div>
+<div class="w-full">
+
+    <!-- HEADER -->
+
+    <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+
+        <div>
+
+            <h1 class="text-4xl font-black text-purple-400">
+                Character Library
+            </h1>
+
+            <p class="text-gray-400 text-sm mt-1">
+                Bangun personality dan identitas AI Assistant
+            </p>
+
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Form Create Character -->
-            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl h-fit">
-                <h2 class="text-xl font-semibold mb-4 text-purple-300 border-b border-gray-700 pb-2">Create New Character</h2>
-                <form id="charForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Character Name</label>
-                        <input type="text" id="charName" placeholder="Contoh: Sales Marketing Pro" required 
-                            class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-2 focus:outline-none focus:border-purple-500 text-sm transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Instruction / Vibe</label>
-                        <textarea id="charInstruction" rows="6" placeholder="Tuliskan detail perilaku di sini (misal: Kamu harus ramah, cekat, dan selalu menawarkan solusi terbaik...)" required 
-                            class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-2 focus:outline-none focus:border-purple-500 text-sm transition"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded shadow-lg transition duration-200">
-                        Save to Library
-                    </button>
-                </form>
-                <div id="statusMsg" class="mt-4 text-sm hidden"></div>
-            </div>
+        <!-- NAV -->
 
-            <!-- List Characters -->
-            <div class="lg:col-span-2">
-                <h2 class="text-xl font-semibold mb-4 text-gray-300">My Character Collection</h2>
-                <div id="charList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Cards will be generated here -->
-                </div>
-            </div>
+        <div class="flex gap-2 flex-wrap">
+
+            <button
+                onclick="loadModule('/skill', null, 'SKILL')"
+                class="bg-green-700 hover:bg-green-600 px-4 py-2 rounded text-sm font-semibold transition"
+            >
+                Skill Library
+            </button>
+
+            <button
+                onclick="goDashboard()"
+                class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-semibold transition"
+            >
+                Dashboard
+            </button>
+
         </div>
+
     </div>
 
-    <script>
-        // Fungsi untuk mengambil data karakter dari database
-        async function fetchCharacters() {
-            try {
-                const response = await fetch('/api/characters');
-                const characters = await response.json();
-                
-                const charList = document.getElementById('charList');
-                charList.innerHTML = ''; 
+    <!-- GRID -->
 
-                if (characters.length === 0) {
-                    charList.innerHTML = '<p class="text-gray-500 italic">Belum ada karakter yang dibuat.</p>';
-                    return;
-                }
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
-                characters.forEach(char => {
-                    const card = `
-                        <div class="bg-gray-800 p-5 rounded-lg border border-gray-700 hover:border-purple-500 transition shadow-md">
-                            <h3 class="text-lg font-bold text-purple-400 mb-2">${char.name}</h3>
-                            <p class="text-gray-400 text-sm line-clamp-4 italic">"${char.instruction}"</p>
-                            <div class="mt-4 flex justify-end">
-                                <span class="text-[10px] bg-purple-900/50 text-purple-300 px-2 py-1 rounded uppercase font-bold tracking-widest">Active Character</span>
-                            </div>
+        <!-- ========================================
+             FORM
+        ========================================= -->
+
+        <div class="xl:col-span-4">
+
+            <div class="bg-gray-800/80 p-6 rounded-2xl border border-gray-700 shadow-xl h-fit">
+
+                <h2 class="text-2xl font-black mb-6 text-purple-300 border-b border-gray-700 pb-3">
+                    Create New Character
+                </h2>
+
+                <form
+                    id="charForm"
+                    class="space-y-4"
+                >
+
+                    <!-- NAME -->
+
+                    <div>
+
+                        <label class="block text-sm text-gray-400 mb-1">
+                            Character Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="charName"
+                            placeholder="Contoh: Sales Marketing Pro"
+                            required
+                            class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-3 focus:outline-none focus:border-purple-500 text-sm transition"
+                        >
+
+                    </div>
+
+                    <!-- INSTRUCTION -->
+
+                    <div>
+
+                        <label class="block text-sm text-gray-400 mb-1">
+                            Personality Instruction
+                        </label>
+
+                        <textarea
+                            id="charInstruction"
+                            rows="8"
+                            placeholder="Tuliskan detail perilaku AI di sini..."
+                            required
+                            class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-3 focus:outline-none focus:border-purple-500 text-sm transition"
+                        ></textarea>
+
+                    </div>
+
+                    <!-- BTN -->
+
+                    <button
+                        type="submit"
+                        id="btnSaveCharacter"
+                        class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3 rounded-xl shadow-lg transition uppercase tracking-widest text-sm"
+                    >
+                        Add Character
+                    </button>
+
+                </form>
+
+                <!-- STATUS -->
+
+                <div
+                    id="statusMsg"
+                    class="mt-4 text-sm hidden"
+                ></div>
+
+            </div>
+
+        </div>
+
+        <!-- ========================================
+             LIST
+        ========================================= -->
+
+        <div class="xl:col-span-8">
+
+            <div class="bg-gray-800/80 p-6 rounded-2xl border border-gray-700 shadow-xl min-h-[650px]">
+
+                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
+
+                    <h2 class="text-2xl font-black text-gray-300">
+                        Character Database
+                    </h2>
+
+                    <div class="text-[10px] uppercase text-purple-400 font-bold">
+                        LIVE PERSONALITY CORE
+                    </div>
+
+                </div>
+
+                <!-- LIST -->
+
+                <div
+                    id="charList"
+                    class="grid grid-cols-1 md:grid-cols-2 gap-4"
+                >
+                    <!-- AUTO -->
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================================
+     SCRIPT
+========================================= -->
+
+<script>
+
+    // ========================================
+    // INIT MODULE
+    // ========================================
+
+    if(!window.characterModuleInitialized){
+
+        window.characterModuleInitialized = true;
+
+        // ========================================
+        // FETCH CHARACTERS
+        // ========================================
+
+        async function fetchCharacters(){
+
+            try{
+
+                const response =
+                await fetch('/api/characters');
+
+                const characters =
+                await response.json();
+
+                const charList =
+                document.getElementById(
+                    'charList'
+                );
+
+                if(!charList) return;
+
+                charList.innerHTML = '';
+
+                // EMPTY
+
+                if(characters.length === 0){
+
+                    charList.innerHTML =
+                    `
+                        <div class="text-gray-500 italic">
+                            Belum ada character AI dibuat.
                         </div>
                     `;
+
+                    return;
+
+                }
+
+                // LOOP
+
+                characters.forEach(char=>{
+
+                    const card = `
+
+                        <div class="bg-gray-900/70 p-5 rounded-xl border border-gray-700 hover:border-purple-500 transition shadow-md">
+
+                            <div class="flex justify-between items-start mb-3">
+
+                                <h3 class="text-lg font-black text-purple-400">
+                                    ${char.name}
+                                </h3>
+
+                                <span class="text-[9px] bg-purple-900/50 text-purple-300 px-2 py-1 rounded uppercase font-black tracking-widest">
+                                    AI Character
+                                </span>
+
+                            </div>
+
+                            <div class="bg-black/30 rounded-lg p-3 border border-gray-800">
+
+                                <p class="text-gray-400 text-xs italic line-clamp-6">
+                                    "${char.instruction}"
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
                     charList.innerHTML += card;
+
                 });
-            } catch (error) {
-                console.error("Gagal memuat karakter:", error);
+
+            }catch(error){
+
+                console.error(
+                    'Fetch Character Error:',
+                    error
+                );
+
             }
+
         }
 
-        // Fungsi simpan karakter baru
-        document.getElementById('charForm').addEventListener('submit', async function(e) {
+        // ========================================
+        // SAVE CHARACTER
+        // ========================================
+
+        async function saveCharacter(e){
+
             e.preventDefault();
-            
+
+            const btn =
+            document.getElementById(
+                'btnSaveCharacter'
+            );
+
+            btn.innerText =
+            'SAVING...';
+
+            btn.disabled = true;
+
             const data = {
-                name: document.getElementById('charName').value,
-                instruction: document.getElementById('charInstruction').value
+
+                name:
+                document.getElementById(
+                    'charName'
+                ).value,
+
+                instruction:
+                document.getElementById(
+                    'charInstruction'
+                ).value
+
             };
 
-            const statusMsg = document.getElementById('statusMsg');
+            const statusMsg =
+            document.getElementById(
+                'statusMsg'
+            );
 
-            try {
-                const response = await fetch('/api/characters', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+            try{
 
-                if (response.ok) {
-                    statusMsg.innerHTML = "✅ Character saved successfully!";
-                    statusMsg.className = "mt-4 text-sm text-green-400 block";
-                    document.getElementById('charForm').reset();
-                    fetchCharacters(); // Refresh list
-                } else {
-                    statusMsg.innerHTML = "❌ Failed to save character.";
-                    statusMsg.className = "mt-4 text-sm text-red-400 block";
+                const response =
+                await fetch(
+                    '/api/characters',
+                    {
+                        method:'POST',
+                        headers:{
+                            'Content-Type':
+                            'application/json'
+                        },
+                        body:JSON.stringify(
+                            data
+                        )
+                    }
+                );
+
+                if(response.ok){
+
+                    statusMsg.innerHTML =
+                    '✅ Character saved successfully!';
+
+                    statusMsg.className =
+                    'mt-4 text-sm text-purple-400 block';
+
+                    document.getElementById(
+                        'charForm'
+                    ).reset();
+
+                    // REFRESH
+
+                    await fetchCharacters();
+
+                }else{
+
+                    statusMsg.innerHTML =
+                    '❌ Failed create character';
+
+                    statusMsg.className =
+                    'mt-4 text-sm text-red-400 block';
+
                 }
-            } catch (error) {
-                console.error("Error:", error);
-            }
-        });
 
-        // Load data saat halaman dibuka
-        window.onload = fetchCharacters;
-    </script>
-</body>
-</html>
+            }catch(error){
+
+                console.error(
+                    'Save Character Error:',
+                    error
+                );
+
+            }
+
+            btn.innerText =
+            'Add Character';
+
+            btn.disabled = false;
+
+        }
+
+        // ========================================
+        // INIT
+        // ========================================
+
+        setTimeout(()=>{
+
+            fetchCharacters();
+
+            const form =
+            document.getElementById(
+                'charForm'
+            );
+
+            if(form){
+
+                form.addEventListener(
+                    'submit',
+                    saveCharacter
+                );
+
+            }
+
+        },100);
+
+    }
+
+</script>
