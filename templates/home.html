@@ -3,163 +3,1326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard DEQBOT.com</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
-    </style>
-</head>
-<body class="bg-black text-gray-100 min-h-screen font-sans selection:bg-blue-500/30">
+    <title>DEQBOT AI COMMAND CENTER</title>
 
-    <nav class="border-b border-gray-800 bg-gray-900/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold">D</div>
-                <h1 class="text-xl font-bold tracking-tighter">DEQBOT<span class="text-blue-500">.com</span></h1>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        html,
+        body{
+            margin:0;
+            padding:0;
+            overflow:hidden;
+            background:#000;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        *{
+            box-sizing:border-box;
+        }
+
+        /* =========================
+           SCROLLBAR
+        ========================== */
+
+        .custom-scrollbar::-webkit-scrollbar{
+            width:5px;
+            height:5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track{
+            background:transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb{
+            background:#1f2937;
+            border-radius:20px;
+        }
+
+        /* =========================
+           PANEL
+        ========================== */
+
+        .panel{
+            background:
+            linear-gradient(
+                180deg,
+                #07111f,
+                #040811
+            );
+
+            border:
+            1px solid rgba(255,255,255,0.05);
+
+            border-radius:18px;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================== */
+
+        .sidebar{
+
+            position:fixed;
+
+            top:52px;
+            left:0;
+
+            width:220px;
+
+            height:calc(100vh - 52px);
+
+            background:
+            linear-gradient(
+                180deg,
+                #05070d,
+                #07111f
+            );
+
+            border-right:
+            1px solid rgba(255,255,255,0.05);
+
+            padding:12px;
+
+            overflow-y:auto;
+
+            transition:0.3s;
+
+            z-index:1000;
+        }
+
+        .sidebar.hide{
+            left:-230px;
+        }
+
+        /* =========================
+           MAIN
+        ========================== */
+
+        .main-wrapper{
+
+            margin-left:220px;
+
+            height:calc(100vh - 52px);
+
+            padding:12px;
+
+            transition:0.3s;
+        }
+
+        .main-wrapper.full{
+            margin-left:0;
+        }
+
+        /* =========================
+           GRID
+        ========================== */
+
+        .dashboard-grid{
+
+            display:grid;
+
+            grid-template-columns:
+            minmax(0,1fr)
+            300px;
+
+            gap:12px;
+
+            height:100%;
+        }
+
+        .dashboard-grid.console-hide{
+            grid-template-columns:1fr;
+        }
+
+        /* =========================
+           MENU
+        ========================== */
+
+        .menu-card{
+
+            background:
+            rgba(255,255,255,0.03);
+
+            border:
+            1px solid rgba(255,255,255,0.05);
+
+            border-radius:12px;
+
+            padding:12px;
+
+            margin-bottom:10px;
+
+            transition:0.25s;
+
+            cursor:pointer;
+        }
+
+        .menu-card:hover{
+
+            border-color:
+            rgba(59,130,246,0.4);
+
+            background:
+            rgba(59,130,246,0.08);
+        }
+
+        .menu-card.active{
+
+            background:
+            rgba(37,99,235,0.15);
+
+            border-color:
+            rgba(59,130,246,0.5);
+        }
+
+        /* =========================
+           STATUS
+        ========================== */
+
+        .status-online{
+            color:#22c55e;
+        }
+
+        .status-warning{
+            color:#facc15;
+        }
+
+        .status-danger{
+            color:#ef4444;
+        }
+
+        /* =========================
+           DYNAMIC CONTENT
+        ========================== */
+
+        #dynamicContent{
+
+            flex:1;
+
+            min-height:0;
+
+            overflow-y:auto;
+
+            overflow-x:hidden;
+
+            padding-right:4px;
+        }
+
+        /* =========================
+           MOBILE
+        ========================== */
+
+        @media(max-width:1000px){
+
+            .sidebar{
+                left:-230px;
+            }
+
+            .sidebar.show{
+                left:0;
+            }
+
+            .main-wrapper{
+                margin-left:0;
+            }
+
+            .dashboard-grid{
+                grid-template-columns:1fr;
+            }
+
+            .console-panel{
+                height:350px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body class="text-gray-100">
+
+    <!-- =========================
+         TOPBAR
+    ========================== -->
+
+    <nav class="h-[52px] border-b border-gray-800 bg-gray-950 flex items-center justify-between px-4">
+
+        <!-- LEFT -->
+
+        <div class="flex items-center space-x-3">
+
+            <!-- MENU -->
+
+            <button
+                id="menuToggle"
+                class="w-8 h-8 rounded-lg border border-gray-700 bg-gray-900 hover:bg-blue-600 transition flex items-center justify-center text-sm"
+            >
+                ☰
+            </button>
+
+            <!-- LOGO -->
+
+            <div
+                onclick="goDashboard()"
+                class="flex items-center space-x-2 cursor-pointer"
+            >
+
+                <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-xs font-black">
+                    D
+                </div>
+
+                <div>
+
+                    <div class="text-sm font-black leading-none">
+                        DEQBOT<span class="text-blue-500">.com</span>
+                    </div>
+
+                    <div class="text-[8px] text-gray-500 mt-0.5">
+                        AI COMMAND CENTER
+                    </div>
+
+                </div>
+
             </div>
-            <div class="flex items-center space-x-6 text-sm">
-                <a href="/newdeq" class="text-gray-400 hover:text-white transition">New Client</a>
-                <a href="/character" class="text-gray-400 hover:text-white transition">Character</a>
-                <a href="/skill" class="text-gray-400 hover:text-white transition">Skills</a>
-                <a href="/configurasi" class="text-yellow-500 font-bold hover:text-yellow-400 transition">⚙️ Config</a>
-                <a href="/deqbot" target="_blank" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg font-bold transition">Open Bot UI</a>
-            </div>
+
         </div>
+
+        <!-- RIGHT -->
+
+        <div class="flex items-center space-x-4 text-[10px]">
+
+            <div class="text-gray-500">
+                UTC+8 | 23:51:09
+            </div>
+
+            <div class="text-green-400 font-bold">
+                SYSTEM ONLINE
+            </div>
+
+        </div>
+
     </nav>
 
-    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-12 gap-8">
-        <div class="col-span-12 lg:col-span-4 space-y-6">
-            <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl">
-                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center">
-                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span> System Engine
-                </h2>
-                
-                <div class="space-y-3 mb-8">
-                    <label class="flex items-center p-4 bg-gray-800/50 rounded-xl border border-gray-700 cursor-pointer hover:border-blue-500 transition group">
-                        <input type="radio" name="aiModel" value="llama3.2:1b" class="w-4 h-4 text-blue-600 focus:ring-0 bg-gray-700 border-gray-600">
-                        <span class="ml-4 font-medium text-gray-300 group-hover:text-white">Llama 3.2 (Lokal)</span>
-                    </label>
-                    <label class="flex items-center p-4 bg-gray-800/50 rounded-xl border border-gray-700 cursor-pointer hover:border-blue-500 transition group">
-                        <input type="radio" name="aiModel" value="phi3:mini" class="w-4 h-4 text-blue-600 focus:ring-0 bg-gray-700 border-gray-600">
-                        <span class="ml-4 font-medium text-gray-300 group-hover:text-white">Phi-3 Mini (Lokal)</span>
-                    </label>
-                    <label class="flex items-center p-4 bg-gray-800/50 rounded-xl border border-gray-700 cursor-pointer hover:border-blue-500 transition group">
-                        <input type="radio" name="aiModel" value="gemini" class="w-4 h-4 text-blue-600 focus:ring-0 bg-gray-700 border-gray-600">
-                        <span class="ml-4 font-medium text-gray-300 group-hover:text-white">Google Gemini (Cloud)</span>
-                    </label>
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside
+        id="sidebar"
+        class="sidebar custom-scrollbar"
+    >
+
+        <!-- NAV -->
+
+        <div class="mb-4">
+
+            <div class="text-[9px] uppercase tracking-[2px] text-gray-500 mb-2 px-1">
+                Navigation
+            </div>
+
+            <!-- HOME -->
+
+            <div
+                class="menu-card active"
+                onclick="goDashboard(this)"
+            >
+
+                <div class="text-[11px] font-bold">
+                    > Dashboard Home
                 </div>
 
-                <div class="flex items-center justify-between p-4 bg-blue-900/20 border border-blue-800/50 rounded-xl mb-6">
-                    <div>
-                        <p class="text-xs font-bold text-blue-400 uppercase">Hybrid Mode</p>
-                        <p class="text-[10px] text-gray-400 italic">Auto-switch to Cloud if Local Fails</p>
+            </div>
+
+            <!-- NEW CLIENT -->
+
+            <div
+                class="menu-card"
+                onclick="loadModule('/newdeq', this, 'NEW CLIENT')"
+            >
+
+                <div class="text-[11px] font-bold">
+                    > New Client
+                </div>
+
+            </div>
+
+            <!-- CHARACTER -->
+
+            <div
+                class="menu-card"
+                onclick="loadModule('/character', this, 'CHARACTER')"
+            >
+
+                <div class="text-[11px] font-bold">
+                    > Character Library
+                </div>
+
+            </div>
+
+            <!-- SKILL -->
+
+            <div
+                class="menu-card"
+                onclick="loadModule('/skill', this, 'SKILL')"
+            >
+
+                <div class="text-[11px] font-bold">
+                    > Skill Library
+                </div>
+
+            </div>
+
+            <!-- CONFIG -->
+
+            <div
+                class="menu-card"
+                onclick="loadModule('/configurasi', this, 'CONFIG')"
+            >
+
+                <div class="text-[11px] font-bold text-yellow-400">
+                    > Config System
+                </div>
+
+            </div>
+
+            <!-- BOT -->
+
+            <a
+                href="/deqbot"
+                target="_blank"
+                class="block menu-card"
+            >
+
+                <div class="text-[11px] font-bold">
+                    > Open Bot UI
+                </div>
+
+            </a>
+
+        </div>
+
+        <!-- CLIENT -->
+
+        <div class="panel p-3 mb-3">
+
+            <div class="flex justify-between items-center mb-2">
+
+                <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-400">
+                    Client Overview [DUMMY]
+                </div>
+
+                <div class="text-[9px] text-green-400">
+                    LIVE
+                </div>
+
+            </div>
+
+            <div class="space-y-1 text-[10px]">
+
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Active</span>
+                    <span class="font-bold">50</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Paused</span>
+                    <span class="font-bold">20</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-gray-500">Pending</span>
+                    <span class="font-bold">3</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RESOURCE -->
+
+        <div class="panel p-3 mb-3">
+
+            <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-400 mb-3">
+                AI Resource Status [DUMMY]
+            </div>
+
+            <div class="space-y-2 text-[10px]">
+
+                <div class="flex justify-between">
+                    <span>Llama 3.2</span>
+                    <span class="status-online font-bold">
+                        ONLINE
+                    </span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span>Phi-3 Mini</span>
+                    <span class="status-online font-bold">
+                        READY
+                    </span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span>Gemini Flash</span>
+                    <span class="status-warning font-bold">
+                        LOW CREDIT
+                    </span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span>OpenAI GPT</span>
+                    <span class="status-danger font-bold">
+                        NO SETUP
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main
+        id="mainWrapper"
+        class="main-wrapper"
+    >
+
+        <div
+            id="dashboardGrid"
+            class="dashboard-grid"
+        >
+
+            <!-- =========================
+                 CENTER
+            ========================== -->
+
+            <section class="flex flex-col gap-3 min-h-0 overflow-hidden">
+
+                <!-- TITLE -->
+
+                <div class="panel p-4">
+
+                    <div class="flex items-start justify-between">
+
+                        <!-- LEFT -->
+
+                        <div>
+
+                            <div class="text-sm font-black">
+                                DEQBOT ADMIN CONTROL
+                            </div>
+
+                            <div class="text-[10px] text-gray-500 mt-1">
+                                AI Hybrid Monitoring & Client Management Workspace
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT -->
+
+                        <div class="text-right">
+
+                            <div
+                                id="pageTitle"
+                                class="text-[10px] text-blue-400 font-bold uppercase"
+                            >
+                                HOME / DASHBOARD
+                            </div>
+
+                            <div class="text-[9px] text-gray-500 mt-1">
+                                Workspace Ready
+                            </div>
+
+                        </div>
+
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="hybridToggle" class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
+
                 </div>
 
-                <button id="btnApply" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition uppercase tracking-widest text-xs">
-                    Apply Changes
-                </button>
-            </div>
-        </div>
+                <!-- SYSTEM ENGINE -->
 
-        <div class="col-span-12 lg:col-span-8 bg-gray-900 border border-gray-800 rounded-2xl flex flex-col h-[600px] shadow-2xl relative overflow-hidden">
-            <div class="p-4 border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Master Console:</span>
-                    <span id="activeModelDisplay" class="text-xs font-bold text-blue-500 uppercase">LOADING...</span>
-                    <span id="hybridTag" class="hidden px-2 py-0.5 bg-blue-500 text-[9px] font-black rounded text-white">HYBRID</span>
-                </div>
-            </div>
+                <div
+                    id="systemEnginePanel"
+                    class="panel p-4"
+                >
 
-            <div id="chatBox" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:20px_20px]"></div>
+                    <div class="flex items-center justify-between mb-4">
 
-            <div class="p-4 bg-gray-900/80 border-t border-gray-800">
-                <div class="relative">
-                    <input type="text" id="userInput" placeholder="Test your engine here..."
-                        class="w-full bg-black border border-gray-700 rounded-xl px-4 py-4 pr-12 text-sm focus:border-blue-500 outline-none transition">
-                    <button id="btnSend" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                        <div class="flex items-center text-[10px] uppercase tracking-[2px] font-black text-gray-400">
+
+                            <span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+
+                            System Engine
+
+                        </div>
+
+                        <div class="text-[9px] text-blue-400 font-bold">
+                            HYBRID READY
+                        </div>
+
+                    </div>
+
+                    <!-- ENGINE -->
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+                        <!-- 1 -->
+
+                        <label class="bg-gray-900/50 border border-gray-700 hover:border-blue-500 rounded-xl p-4 transition cursor-pointer">
+
+                            <div class="flex items-center">
+
+                                <input
+                                    type="radio"
+                                    name="aiModel"
+                                    value="llama3.2:1b"
+                                    class="w-3 h-3"
+                                >
+
+                                <span class="ml-3 text-[11px] font-bold">
+                                    Llama 3.2
+                                </span>
+
+                            </div>
+
+                            <div class="text-[9px] text-gray-500 mt-3">
+                                Local Ollama Engine
+                            </div>
+
+                        </label>
+
+                        <!-- 2 -->
+
+                        <label class="bg-gray-900/50 border border-gray-700 hover:border-blue-500 rounded-xl p-4 transition cursor-pointer">
+
+                            <div class="flex items-center">
+
+                                <input
+                                    type="radio"
+                                    name="aiModel"
+                                    value="phi3:mini"
+                                    class="w-3 h-3"
+                                >
+
+                                <span class="ml-3 text-[11px] font-bold">
+                                    Phi-3 Mini
+                                </span>
+
+                            </div>
+
+                            <div class="text-[9px] text-gray-500 mt-3">
+                                Lightweight Local AI
+                            </div>
+
+                        </label>
+
+                        <!-- 3 -->
+
+                        <label class="bg-gray-900/50 border border-gray-700 hover:border-blue-500 rounded-xl p-4 transition cursor-pointer">
+
+                            <div class="flex items-center">
+
+                                <input
+                                    type="radio"
+                                    name="aiModel"
+                                    value="gemini"
+                                    class="w-3 h-3"
+                                >
+
+                                <span class="ml-3 text-[11px] font-bold">
+                                    Gemini Flash
+                                </span>
+
+                            </div>
+
+                            <div class="text-[9px] text-gray-500 mt-3">
+                                Cloud Intelligence
+                            </div>
+
+                        </label>
+
+                    </div>
+
+                    <!-- HYBRID -->
+
+                    <div class="mt-4 bg-blue-900/10 border border-blue-900/20 rounded-xl p-3 flex justify-between items-center">
+
+                        <div>
+
+                            <div class="text-[10px] text-blue-400 font-bold uppercase">
+                                Hybrid Mode
+                            </div>
+
+                            <div class="text-[9px] text-gray-500 mt-1">
+                                Auto-switch to Cloud if Local fails
+                            </div>
+
+                        </div>
+
+                        <label class="relative inline-flex items-center cursor-pointer">
+
+                            <input
+                                type="checkbox"
+                                id="hybridToggle"
+                                class="sr-only peer"
+                            >
+
+                            <div class="w-9 h-5 bg-gray-700 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:h-4 after:w-4 after:rounded-full after:transition-all peer-checked:after:translate-x-full"></div>
+
+                        </label>
+
+                    </div>
+
+                    <!-- BTN -->
+
+                    <button
+                        id="btnApply"
+                        class="w-full mt-4 bg-white hover:bg-gray-200 text-black font-black text-[10px] uppercase tracking-[2px] py-3 rounded-xl transition"
+                    >
+                        Apply Engine Changes
                     </button>
+
                 </div>
-            </div>
+
+                <!-- =========================
+                     CONTENT
+                ========================== -->
+
+                <div
+                    id="dynamicContent"
+                    class="panel custom-scrollbar p-4"
+                >
+
+                    <!-- DEFAULT -->
+
+                    <div id="dashboardDefault">
+
+                        <!-- EVENT -->
+
+                        <div>
+
+                            <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-400 mb-3">
+                                Event Feed [DUMMY]
+                            </div>
+
+                            <div class="space-y-2 text-[10px]">
+
+                                <div class="bg-gray-900/40 border border-gray-800 rounded-lg px-3 py-2 flex justify-between">
+                                    <span>New Client Registered</span>
+                                    <span class="text-gray-500">12:05</span>
+                                </div>
+
+                                <div class="bg-gray-900/40 border border-gray-800 rounded-lg px-3 py-2 flex justify-between">
+                                    <span>Gemini Credit Low</span>
+                                    <span class="text-gray-500">12:08</span>
+                                </div>
+
+                                <div class="bg-gray-900/40 border border-gray-800 rounded-lg px-3 py-2 flex justify-between">
+                                    <span>Skill Added Successfully</span>
+                                    <span class="text-gray-500">12:11</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- PLACE -->
+
+                        <div class="mt-6 border border-dashed border-gray-800 rounded-xl p-12 text-center">
+
+                            <div class="text-xs text-gray-500">
+                                Dynamic Workspace Ready
+                            </div>
+
+                            <div class="text-[10px] text-gray-700 mt-2">
+                                Module content seperti New Client / Skill / Character akan muncul di area ini.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- =========================
+                 CONSOLE
+            ========================== -->
+
+            <aside
+                id="consolePanel"
+                class="console-panel panel overflow-hidden flex flex-col"
+            >
+
+                <!-- HEADER -->
+
+                <div class="h-[48px] border-b border-gray-800 flex items-center justify-between px-4">
+
+                    <div class="flex items-center space-x-2">
+
+                        <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500">
+                            Master Console
+                        </div>
+
+                        <div
+                            id="activeModelDisplay"
+                            class="text-[10px] font-black text-blue-500 uppercase"
+                        >
+                            GEMINI
+                        </div>
+
+                        <div
+                            id="hybridTag"
+                            class="hidden px-2 py-0.5 rounded bg-blue-600 text-white text-[8px] font-black"
+                        >
+                            HYBRID
+                        </div>
+
+                    </div>
+
+                    <!-- TOGGLE -->
+
+                    <button
+                        id="toggleConsole"
+                        class="text-gray-500 hover:text-white text-[11px]"
+                    >
+                        ⇆
+                    </button>
+
+                </div>
+
+                <!-- CHAT -->
+
+                <div
+                    id="chatBox"
+                    class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:18px_18px]"
+                ></div>
+
+                <!-- AGENT -->
+
+                <div class="border-t border-gray-800 p-3">
+
+                    <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">
+                        Agent Activity [DUMMY]
+                    </div>
+
+                    <div class="space-y-1 text-[10px]">
+
+                        <div class="flex justify-between">
+                            <span>Sales Agent</span>
+                            <span class="text-green-400">
+                                RUNNING
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span>Support Agent</span>
+                            <span class="text-yellow-400">
+                                IDLE
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span>Marketing Agent</span>
+                            <span class="text-blue-400">
+                                READY
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- INPUT -->
+
+                <div class="border-t border-gray-800 p-3">
+
+                    <div class="relative">
+
+                        <input
+                            type="text"
+                            id="userInput"
+                            placeholder="Test your engine here..."
+                            class="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 pr-12 text-[11px] focus:border-blue-500 outline-none"
+                        >
+
+                        <button
+                            id="btnSend"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+                        >
+                            »
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
         </div>
+
     </main>
 
-    <script>
-        async function loadConfig() {
-            try {
-                const res = await fetch('/api/settings/load_control');
-                const data = await res.json();
-                document.getElementById('activeModelDisplay').innerText = data.active_engine.toUpperCase();
-                document.getElementById('hybridTag').style.display = data.hybrid_mode ? "inline-flex" : "none";
-                document.getElementById('hybridToggle').checked = data.hybrid_mode;
+    <!-- =========================
+         SCRIPT
+    ========================== -->
 
-                const radio = document.querySelector(`input[name="aiModel"][value="${data.active_engine}"]`);
-                if (radio) radio.checked = true;
-            } catch (e) {
-                console.error("Config Load Failed", e);
+    <script>
+
+        // =========================
+        // SIDEBAR
+        // =========================
+
+        const menuToggle =
+        document.getElementById(
+            'menuToggle'
+        );
+
+        const sidebar =
+        document.getElementById(
+            'sidebar'
+        );
+
+        const mainWrapper =
+        document.getElementById(
+            'mainWrapper'
+        );
+
+        menuToggle.addEventListener(
+            'click',
+            ()=>{
+
+                if(window.innerWidth <= 1000){
+
+                    sidebar.classList.toggle(
+                        'show'
+                    );
+
+                }else{
+
+                    sidebar.classList.toggle(
+                        'hide'
+                    );
+
+                    mainWrapper.classList.toggle(
+                        'full'
+                    );
+
+                }
+
             }
+        );
+
+        // =========================
+        // CONSOLE TOGGLE
+        // =========================
+
+        const toggleConsole =
+        document.getElementById(
+            'toggleConsole'
+        );
+
+        const consolePanel =
+        document.getElementById(
+            'consolePanel'
+        );
+
+        const dashboardGrid =
+        document.getElementById(
+            'dashboardGrid'
+        );
+
+        toggleConsole.addEventListener(
+            'click',
+            ()=>{
+
+                consolePanel.classList.toggle(
+                    'hidden'
+                );
+
+                dashboardGrid.classList.toggle(
+                    'console-hide'
+                );
+
+            }
+        );
+
+        // =========================
+        // ACTIVE MENU
+        // =========================
+
+        function setActiveMenu(el){
+
+            document
+            .querySelectorAll('.menu-card')
+            .forEach(card=>{
+
+                card.classList.remove(
+                    'active'
+                );
+
+            });
+
+            if(el){
+
+                el.classList.add(
+                    'active'
+                );
+
+            }
+
         }
 
-        document.getElementById('btnApply').onclick = async () => {
-            const selected = document.querySelector('input[name="aiModel"]:checked').value;
-            const hybrid = document.getElementById('hybridToggle').checked;
-            const btn = document.getElementById('btnApply');
+        // =========================
+        // GO DASHBOARD
+        // =========================
 
-            btn.innerText = "SAVING...";
-            await fetch('/api/settings/save_control', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ active_engine: selected, hybrid_mode: hybrid })
-            });
-            location.reload();
-        };
+        function goDashboard(el=null){
 
-        const chatBox = document.getElementById('chatBox');
+            setActiveMenu(el);
 
-        function addMessage(role, text) {
-            const div = document.createElement('div');
-            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-            div.innerHTML = `
-                <div class="${role === 'user' ? 'bg-blue-600' : 'bg-gray-800'} max-w-[80%] px-4 py-3 rounded-2xl text-sm shadow-lg">
-                    <p class="whitespace-pre-wrap">${text}</p>
+            document.getElementById(
+                'dynamicContent'
+            ).innerHTML =
+            document.getElementById(
+                'dashboardDefault'
+            ).outerHTML;
+
+            document.getElementById(
+                'pageTitle'
+            ).innerText =
+            'HOME / DASHBOARD';
+
+            // SHOW ENGINE
+
+            document.getElementById(
+                'systemEnginePanel'
+            ).style.display =
+            'block';
+
+        }
+
+        // =========================
+        // LOAD MODULE
+        // =========================
+
+        async function loadModule(
+            url,
+            element,
+            title
+        ){
+
+            setActiveMenu(element);
+
+            const dynamicContent =
+            document.getElementById(
+                'dynamicContent'
+            );
+
+            // HIDE ENGINE
+
+            document.getElementById(
+                'systemEnginePanel'
+            ).style.display =
+            'none';
+
+            document.getElementById(
+                'pageTitle'
+            ).innerText =
+            title;
+
+            // LOADING
+
+            dynamicContent.innerHTML =
+            `
+                <div class="h-full flex items-center justify-center">
+
+                    <div class="text-center">
+
+                        <div class="text-blue-500 font-bold animate-pulse">
+                            Loading Module...
+                        </div>
+
+                        <div class="text-[10px] text-gray-500 mt-2">
+                            ${title}
+                        </div>
+
+                    </div>
+
                 </div>
             `;
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try{
+
+                const response =
+                await fetch(url);
+
+                const html =
+                await response.text();
+
+                const parser =
+                new DOMParser();
+
+                const doc =
+                parser.parseFromString(
+                    html,
+                    'text/html'
+                );
+
+                dynamicContent.innerHTML =
+                doc.body.innerHTML;
+
+            }catch(err){
+
+                dynamicContent.innerHTML =
+                `
+                    <div class="text-red-500">
+                        Failed Load Module
+                    </div>
+                `;
+
+            }
+
         }
 
-        async function sendChat() {
-            const input = document.getElementById('userInput');
-            const prompt = input.value.trim();
-            if (!prompt) return;
+        // =========================
+        // LOAD CONFIG
+        // =========================
 
-            addMessage('user', prompt);
+        async function loadConfig(){
+
+            try{
+
+                const res =
+                await fetch(
+                    '/api/settings/load_control'
+                );
+
+                const data =
+                await res.json();
+
+                document.getElementById(
+                    'activeModelDisplay'
+                ).innerText =
+                data.active_engine.toUpperCase();
+
+                document.getElementById(
+                    'hybridTag'
+                ).style.display =
+                data.hybrid_mode
+                ? 'inline-flex'
+                : 'none';
+
+                document.getElementById(
+                    'hybridToggle'
+                ).checked =
+                data.hybrid_mode;
+
+                const radio =
+                document.querySelector(
+                    `input[name="aiModel"][value="${data.active_engine}"]`
+                );
+
+                if(radio){
+
+                    radio.checked = true;
+
+                }
+
+            }catch(e){
+
+                console.log(e);
+
+            }
+
+        }
+
+        // =========================
+        // SAVE ENGINE
+        // =========================
+
+        document.getElementById(
+            'btnApply'
+        ).onclick =
+        async ()=>{
+
+            const selected =
+            document.querySelector(
+                'input[name="aiModel"]:checked'
+            ).value;
+
+            const hybrid =
+            document.getElementById(
+                'hybridToggle'
+            ).checked;
+
+            const btn =
+            document.getElementById(
+                'btnApply'
+            );
+
+            btn.innerText =
+            'SAVING...';
+
+            await fetch(
+                '/api/settings/save_control',
+                {
+                    method:'POST',
+                    headers:{
+                        'Content-Type':
+                        'application/json'
+                    },
+                    body:JSON.stringify({
+                        active_engine:selected,
+                        hybrid_mode:hybrid
+                    })
+                }
+            );
+
+            location.reload();
+
+        };
+
+        // =========================
+        // CHAT
+        // =========================
+
+        const chatBox =
+        document.getElementById(
+            'chatBox'
+        );
+
+        function addMessage(
+            role,
+            text
+        ){
+
+            const div =
+            document.createElement(
+                'div'
+            );
+
+            div.className =
+            `flex ${
+                role === 'user'
+                ? 'justify-end'
+                : 'justify-start'
+            }`;
+
+            div.innerHTML =
+            `
+                <div class="${
+                    role === 'user'
+                    ? 'bg-blue-600'
+                    : 'bg-gray-800'
+                } max-w-[85%] px-4 py-3 rounded-2xl text-[11px]">
+
+                    <p class="whitespace-pre-wrap">
+                        ${text}
+                    </p>
+
+                </div>
+            `;
+
+            chatBox.appendChild(div);
+
+            chatBox.scrollTop =
+            chatBox.scrollHeight;
+
+        }
+
+        async function sendChat(){
+
+            const input =
+            document.getElementById(
+                'userInput'
+            );
+
+            const prompt =
+            input.value.trim();
+
+            if(!prompt) return;
+
+            addMessage(
+                'user',
+                prompt
+            );
+
             input.value = '';
 
-            try {
-                const res = await fetch('/v1/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-DEQ-KEY': 'MASTER-ADMIN' },
-                    body: JSON.stringify({ prompt: prompt })
-                });
-                const data = await res.json();
-                addMessage('bot', data.response || 'Tidak ada respons.');
-            } catch (e) {
-                addMessage('bot', "System Error: Connection Lost.");
+            try{
+
+                const res =
+                await fetch(
+                    '/v1/chat',
+                    {
+                        method:'POST',
+                        headers:{
+                            'Content-Type':
+                            'application/json',
+                            'X-DEQ-KEY':
+                            'MASTER-ADMIN'
+                        },
+                        body:JSON.stringify({
+                            prompt:prompt
+                        })
+                    }
+                );
+
+                const data =
+                await res.json();
+
+                addMessage(
+                    'bot',
+                    data.response
+                    || 'Tidak ada respons.'
+                );
+
+            }catch(e){
+
+                addMessage(
+                    'bot',
+                    'System Error'
+                );
+
             }
+
         }
 
-        document.getElementById('btnSend').onclick = sendChat;
-        document.getElementById('userInput').onkeypress = (e) => { if (e.key === 'Enter') sendChat(); };
+        document.getElementById(
+            'btnSend'
+        ).onclick =
+        sendChat;
 
-        window.onload = loadConfig;
+        document.getElementById(
+            'userInput'
+        ).onkeypress =
+        (e)=>{
+
+            if(e.key === 'Enter'){
+
+                sendChat();
+
+            }
+
+        };
+
+        // =========================
+        // START
+        // =========================
+
+        window.onload =
+        loadConfig;
+
     </script>
+
 </body>
 </html>
