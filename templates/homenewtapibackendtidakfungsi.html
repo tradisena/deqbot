@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>DEQBOT Admin Control</title>
+
+    <!-- =========================
+         CSS
+    ========================== -->
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        html,
+        body{
+            width:100%;
+            height:100%;
+            overflow:hidden;
+
+            font-family:
+            Arial,
+            Helvetica,
+            sans-serif;
+
+            background:#05070d;
+            color:white;
+        }
+
+        a{
+            text-decoration:none;
+            color:inherit;
+        }
+
+        /* =========================
+           TOPBAR
+        ========================== */
+
+        .topbar{
+
+            width:100%;
+            height:64px;
+
+            position:fixed;
+            top:0;
+            left:0;
+
+            z-index:9999;
+
+            background:
+            linear-gradient(
+                to right,
+                #07111f,
+                #08101d
+            );
+
+            border-bottom:
+            1px solid rgba(255,255,255,0.06);
+
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+
+            padding:0 16px;
+        }
+
+        .top-left{
+            display:flex;
+            align-items:center;
+            gap:14px;
+        }
+
+        .menu-toggle{
+
+            width:36px;
+            height:36px;
+
+            border-radius:10px;
+
+            background:#111827;
+
+            border:
+            1px solid rgba(255,255,255,0.08);
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            cursor:pointer;
+
+            font-size:20px;
+
+            transition:0.2s;
+        }
+
+        .menu-toggle:hover{
+            background:#1d4ed8;
+        }
+
+        .logo{
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+
+        .logo-icon{
+
+            width:34px;
+            height:34px;
+
+            border-radius:10px;
+
+            background:#2563eb;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            font-weight:bold;
+        }
+
+        .logo-text{
+            font-size:18px;
+            font-weight:bold;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================== */
+
+        .sidebar{
+
+            width:290px;
+            height:calc(100vh - 64px);
+
+            position:fixed;
+            left:0;
+            top:64px;
+
+            z-index:999;
+
+            background:#06101d;
+
+            border-right:
+            1px solid rgba(255,255,255,0.06);
+
+            padding:18px;
+
+            overflow-y:auto;
+
+            transition:0.3s;
+        }
+
+        .sidebar.hide{
+            left:-290px;
+        }
+
+        /* =========================
+           MENU
+        ========================== */
+
+        .menu-item{
+
+            width:100%;
+
+            background:
+            linear-gradient(
+                180deg,
+                #0d1728,
+                #0d1525
+            );
+
+            border:
+            1px solid rgba(255,255,255,0.06);
+
+            border-radius:16px;
+
+            padding:18px;
+
+            margin-bottom:14px;
+
+            transition:0.25s;
+
+            cursor:pointer;
+
+            display:block;
+        }
+
+        .menu-item:hover{
+
+            border-color:
+            rgba(37,99,235,0.6);
+
+            background:
+            linear-gradient(
+                180deg,
+                #13213d,
+                #101b31
+            );
+        }
+
+        .menu-title{
+
+            font-size:15px;
+            font-weight:bold;
+        }
+
+        /* =========================
+           MAIN
+        ========================== */
+
+        .main{
+
+            width:100%;
+            height:100vh;
+
+            padding-top:82px;
+            padding-left:308px;
+            padding-right:18px;
+            padding-bottom:18px;
+
+            transition:0.3s;
+        }
+
+        .main.full{
+            padding-left:18px;
+        }
+
+        .layout{
+
+            width:100%;
+            height:calc(100vh - 100px);
+
+            display:flex;
+            gap:18px;
+        }
+
+        /* =========================
+           CONTENT
+        ========================== */
+
+        .content-area{
+
+            flex:1;
+
+            background:
+            linear-gradient(
+                180deg,
+                #06101d,
+                #07111f
+            );
+
+            border:
+            1px solid rgba(255,255,255,0.06);
+
+            border-radius:22px;
+
+            padding:22px;
+
+            overflow:auto;
+        }
+
+        .content-title{
+
+            font-size:18px;
+            font-weight:bold;
+
+            margin-bottom:18px;
+        }
+
+        /* =========================
+           RIGHT CONSOLE
+        ========================== */
+
+        .console{
+
+            width:360px;
+
+            background:
+            linear-gradient(
+                180deg,
+                #06101d,
+                #07111f
+            );
+
+            border:
+            1px solid rgba(255,255,255,0.06);
+
+            border-radius:22px;
+
+            overflow:hidden;
+
+            display:flex;
+            flex-direction:column;
+        }
+
+        .console-header{
+
+            height:60px;
+
+            border-bottom:
+            1px solid rgba(255,255,255,0.06);
+
+            display:flex;
+            align-items:center;
+
+            padding:0 18px;
+
+            color:#94a3b8;
+
+            font-size:13px;
+            font-weight:bold;
+
+            letter-spacing:1px;
+        }
+
+        .console-header span{
+            color:#3b82f6;
+            margin-left:6px;
+        }
+
+        .console-chat{
+
+            flex:1;
+
+            padding:18px;
+
+            overflow-y:auto;
+        }
+
+        .console-input{
+
+            height:74px;
+
+            border-top:
+            1px solid rgba(255,255,255,0.06);
+
+            padding:10px;
+
+            display:flex;
+            gap:10px;
+        }
+
+        .console-input input{
+
+            flex:1;
+
+            border:none;
+            outline:none;
+
+            border-radius:14px;
+
+            background:#0f172a;
+
+            border:
+            1px solid rgba(255,255,255,0.06);
+
+            color:white;
+
+            padding:0 14px;
+        }
+
+        .console-input button{
+
+            width:54px;
+
+            border:none;
+
+            border-radius:14px;
+
+            background:#2563eb;
+
+            color:white;
+
+            font-size:20px;
+
+            cursor:pointer;
+        }
+
+        /* =========================
+           SYSTEM ENGINE PANEL
+        ========================== */
+
+        .engine-panel{
+
+            width:100%;
+
+            background:
+            linear-gradient(
+                180deg,
+                #0b1730,
+                #0c1425
+            );
+
+            border:
+            1px solid rgba(255,255,255,0.06);
+
+            border-radius:20px;
+
+            padding:18px;
+
+            margin-bottom:18px;
+        }
+
+        .engine-title{
+
+            color:#94a3b8;
+
+            font-size:13px;
+            font-weight:bold;
+
+            letter-spacing:2px;
+
+            margin-bottom:18px;
+        }
+
+        .green-dot{
+
+            width:8px;
+            height:8px;
+
+            border-radius:50%;
+
+            background:#22c55e;
+
+            display:inline-block;
+
+            margin-right:10px;
+        }
+
+        .engine-option{
+
+            width:100%;
+
+            padding:18px;
+
+            border-radius:16px;
+
+            background:
+            rgba(255,255,255,0.03);
+
+            border:
+            1px solid rgba(255,255,255,0.08);
+
+            display:flex;
+            align-items:center;
+            gap:14px;
+
+            margin-bottom:14px;
+
+            transition:0.25s;
+
+            cursor:pointer;
+        }
+
+        .engine-option:hover{
+
+            border-color:
+            rgba(37,99,235,0.5);
+
+            background:
+            rgba(37,99,235,0.08);
+        }
+
+        .engine-option input{
+            transform:scale(1.15);
+        }
+
+        .engine-option label{
+            font-size:16px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .hybrid-box{
+
+            width:100%;
+
+            background:
+            rgba(37,99,235,0.12);
+
+            border:
+            1px solid rgba(37,99,235,0.2);
+
+            border-radius:16px;
+
+            padding:16px;
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            margin-top:8px;
+        }
+
+        .hybrid-title{
+            color:#60a5fa;
+            font-size:13px;
+            font-weight:bold;
+        }
+
+        .hybrid-desc{
+            font-size:11px;
+            color:#94a3b8;
+            margin-top:4px;
+        }
+
+        .toggle{
+
+            width:54px;
+            height:30px;
+
+            border-radius:50px;
+
+            background:#475569;
+
+            position:relative;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        .toggle::before{
+
+            content:'';
+
+            width:24px;
+            height:24px;
+
+            border-radius:50%;
+
+            background:white;
+
+            position:absolute;
+
+            left:3px;
+            top:3px;
+
+            transition:0.3s;
+        }
+
+        .toggle.active{
+            background:#2563eb;
+        }
+
+        .toggle.active::before{
+            left:27px;
+        }
+
+        .apply-btn{
+
+            width:100%;
+            height:54px;
+
+            border:none;
+
+            border-radius:14px;
+
+            background:white;
+
+            margin-top:18px;
+
+            font-size:14px;
+            font-weight:bold;
+
+            cursor:pointer;
+        }
+
+        /* =========================
+           MOBILE
+        ========================== */
+
+        @media(max-width:1000px){
+
+            .sidebar{
+                left:-290px;
+            }
+
+            .sidebar.show{
+                left:0;
+            }
+
+            .main{
+                padding-left:18px;
+            }
+
+            .layout{
+                flex-direction:column;
+                height:auto;
+            }
+
+            .console{
+                width:100%;
+                height:500px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- =========================
+         TOPBAR
+    ========================== -->
+
+    <div class="topbar">
+
+        <div class="top-left">
+
+            <div
+                class="menu-toggle"
+                id="menuToggle"
+            >
+                =
+            </div>
+
+            <div class="logo">
+
+                <div class="logo-icon">
+                    D
+                </div>
+
+                <div class="logo-text">
+                    DEQBOT.com
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <div
+        class="sidebar"
+        id="sidebar"
+    >
+
+        <!-- =========================
+             SYSTEM ENGINE
+             PERTAHANKAN NAME / VALUE
+        ========================== -->
+
+        <div class="engine-panel">
+
+            <div class="engine-title">
+                <span class="green-dot"></span>
+                SYSTEM ENGINE
+            </div>
+
+            <!-- ENGINE 1 -->
+
+            <div class="engine-option">
+
+                <input
+                    type="radio"
+                    name="engine"
+                    value="llama"
+                    id="engine_llama"
+                >
+
+                <label for="engine_llama">
+                    Llama 3.2 (Lokal)
+                </label>
+
+            </div>
+
+            <!-- ENGINE 2 -->
+
+            <div class="engine-option">
+
+                <input
+                    type="radio"
+                    name="engine"
+                    value="phi3"
+                    id="engine_phi3"
+                >
+
+                <label for="engine_phi3">
+                    Phi-3 Mini (Lokal)
+                </label>
+
+            </div>
+
+            <!-- ENGINE 3 -->
+
+            <div class="engine-option">
+
+                <input
+                    type="radio"
+                    name="engine"
+                    value="gemini"
+                    id="engine_gemini"
+                    checked
+                >
+
+                <label for="engine_gemini">
+                    Google Gemini (Cloud)
+                </label>
+
+            </div>
+
+            <!-- HYBRID -->
+
+            <div class="hybrid-box">
+
+                <div>
+
+                    <div class="hybrid-title">
+                        HYBRID MODE
+                    </div>
+
+                    <div class="hybrid-desc">
+                        Auto-switch to Cloud if Local Fails
+                    </div>
+
+                </div>
+
+                <div
+                    class="toggle"
+                    id="hybridToggle"
+                ></div>
+
+            </div>
+
+            <!-- APPLY -->
+
+            <button
+                class="apply-btn"
+                id="applyEngineBtn"
+            >
+                APPLY CHANGES
+            </button>
+
+        </div>
+
+        <!-- =========================
+             MENU ASLI
+             JANGAN UBAH HASH
+        ========================== -->
+
+        <a href="#new-client" class="menu-item">
+            <div class="menu-title">
+                > New Client
+            </div>
+        </a>
+
+        <a href="#character" class="menu-item">
+            <div class="menu-title">
+                > Character
+            </div>
+        </a>
+
+        <a href="#skills" class="menu-item">
+            <div class="menu-title">
+                > Skills
+            </div>
+        </a>
+
+        <a href="#config" class="menu-item">
+            <div class="menu-title">
+                > Config
+            </div>
+        </a>
+
+        <a href="#bot-ui" class="menu-item">
+            <div class="menu-title">
+                > Open Bot UI
+            </div>
+        </a>
+
+    </div>
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <div
+        class="main"
+        id="mainContent"
+    >
+
+        <div class="layout">
+
+            <!-- =========================
+                 CONTENT
+            ========================== -->
+
+            <div class="content-area">
+
+                {% block content %}
+
+                <div class="content-title">
+                    DEQBOT ADMIN CONTROL
+                </div>
+
+                <p>
+                    Disini isi dari setiap fitur menu yg dibuka ....
+                </p>
+
+                {% endblock %}
+
+            </div>
+
+            <!-- =========================
+                 MASTER CONSOLE
+            ========================== -->
+
+            <div class="console">
+
+                <div class="console-header">
+
+                    MASTER CONSOLE :
+
+                    <span id="activeEngineLabel">
+                        GEMINI
+                    </span>
+
+                </div>
+
+                <!-- CHAT -->
+
+                <div
+                    class="console-chat"
+                    id="chatBox"
+                >
+
+                    disini text hasil percakapan
+                    dengan engine master console ...
+
+                </div>
+
+                <!-- INPUT -->
+
+                <div class="console-input">
+
+                    <!-- PERTAHANKAN ID -->
+
+                    <input
+                        type="text"
+                        id="messageInput"
+                        placeholder="Test your engine here .."
+                    >
+
+                    <!-- PERTAHANKAN ID -->
+
+                    <button
+                        id="sendBtn"
+                    >
+                        »
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- =========================
+         SCRIPT
+    ========================== -->
+
+    <script>
+
+        // =========================
+        // SIDEBAR
+        // =========================
+
+        const menuToggle =
+            document.getElementById('menuToggle');
+
+        const sidebar =
+            document.getElementById('sidebar');
+
+        const mainContent =
+            document.getElementById('mainContent');
+
+        menuToggle.addEventListener('click',()=>{
+
+            if(window.innerWidth <= 1000){
+
+                sidebar.classList.toggle('show');
+
+            }else{
+
+                sidebar.classList.toggle('hide');
+
+                mainContent.classList.toggle('full');
+
+            }
+
+        });
+
+        // =========================
+        // HYBRID TOGGLE
+        // =========================
+
+        const hybridToggle =
+            document.getElementById('hybridToggle');
+
+        hybridToggle.addEventListener('click',()=>{
+
+            hybridToggle.classList.toggle('active');
+
+        });
+
+        // =========================
+        // ENGINE LABEL
+        // =========================
+
+        const engineRadios =
+            document.querySelectorAll(
+                'input[name="engine"]'
+            );
+
+        const activeEngineLabel =
+            document.getElementById(
+                'activeEngineLabel'
+            );
+
+        engineRadios.forEach((radio)=>{
+
+            radio.addEventListener(
+                'change',
+                ()=>{
+
+                    activeEngineLabel.innerText =
+                    radio.nextElementSibling
+                    .innerText
+                    .toUpperCase();
+
+                }
+            );
+
+        });
+
+        // =========================
+        // BACKEND EXISTING
+        // JANGAN HAPUS
+        // =========================
+
+        // Tempel semua JS lama backend
+        // dari home.html asli di bawah sini
+
+    </script>
+
+</body>
+</html>
