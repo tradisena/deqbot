@@ -1,130 +1,412 @@
-.<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skill Library - DEQCore.ai</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-white min-h-screen p-8">
+<!-- ========================================
+     SKILL LIBRARY PARTIAL MODULE
+========================================= -->
 
-    <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="mb-8 flex items-center justify-between">
-            <div>
-                <h1 class="text-3xl font-bold text-green-400">Skill Library</h1>
-                <p class="text-gray-400">Pusat modul keahlian teknis dan SOP untuk asisten AI Anda</p>
-            </div>
-            <div class="space-x-2">
-                <a href="/character" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm font-semibold transition">Character Library</a>
-                <a href="/" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-semibold transition">Dashboard</a>
-            </div>
-        </div>
+<div class="w-full">
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Form Create Skill -->
-            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-xl h-fit">
-                <h2 class="text-xl font-semibold mb-4 text-green-300 border-b border-gray-700 pb-2">Add New Skill</h2>
-                <form id="skillForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Skill Name</label>
-                        <input type="text" id="skillName" placeholder="Contoh: Manajemen Karyawan Kuliner" required 
-                            class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-2 focus:outline-none focus:border-green-500 text-sm transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Short Description</label>
-                        <input type="text" id="skillDesc" placeholder="Deskripsi singkat kegunaan skill ini" required 
-                            class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-2 focus:outline-none focus:border-green-500 text-sm transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm text-gray-400 mb-1">Technical Instruction (SOP Content)</label>
-                        <textarea id="skillContent" rows="6" placeholder="Tuliskan instruksi teknis atau langkah-langkah SOP yang harus diikuti AI..." required 
-                            class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-2 focus:outline-none focus:border-green-500 text-sm transition"></textarea>
-                    </div>
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-2 rounded shadow-lg transition duration-200">
-                        Add to Library
-                    </button>
-                </form>
-                <div id="statusMsg" class="mt-4 text-sm hidden"></div>
-            </div>
+```
+<!-- HEADER -->
 
-            <!-- List Skills -->
-            <div class="lg:col-span-2">
-                <h2 class="text-xl font-semibold mb-4 text-gray-300">Available Skills</h2>
-                <div id="skillList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Cards will be generated here -->
-                </div>
-            </div>
-        </div>
+<div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+
+    <div>
+
+        <h1 class="text-4xl font-black text-green-400">
+            Skill Library
+        </h1>
+
+        <p class="text-gray-400 text-sm mt-1">
+            Pusat modul keahlian teknis dan SOP untuk asisten AI Anda
+        </p>
+
     </div>
 
-    <script>
-        // Jalankan saat halaman dimuat
-        async function fetchSkills() {
-            try {
-                const response = await fetch('/api/skills');
-                const skills = await response.json();
-                
-                const skillList = document.getElementById('skillList');
-                skillList.innerHTML = ''; 
+    <!-- NAV -->
 
-                if (skills.length === 0) {
-                    skillList.innerHTML = '<p class="text-gray-500 italic">Belum ada modul skill yang dibuat.</p>';
-                    return;
-                }
+    <div class="flex gap-2 flex-wrap">
 
-                skills.forEach(skill => {
-                    const card = `
-                        <div class="bg-gray-800 p-5 rounded-lg border border-gray-700 hover:border-green-500 transition shadow-md">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-lg font-bold text-green-400">${skill.name}</h3>
-                                <span class="text-[9px] bg-green-900/50 text-green-300 px-2 py-1 rounded uppercase font-bold tracking-widest">Skill Ready</span>
-                            </div>
-                            <p class="text-white text-xs font-semibold mb-2">${skill.description}</p>
-                            <p class="text-gray-400 text-xs line-clamp-3 italic">"${skill.content}"</p>
+        <button
+            onclick="loadModule('/character', null, 'CHARACTER')"
+            class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm font-semibold transition"
+        >
+            Character Library
+        </button>
+
+        <button
+            onclick="goDashboard()"
+            class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-semibold transition"
+        >
+            Dashboard
+        </button>
+
+    </div>
+
+</div>
+
+<!-- GRID -->
+
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+    <!-- ========================================
+         FORM
+    ========================================= -->
+
+    <div class="xl:col-span-4">
+
+        <div class="bg-gray-800/80 p-6 rounded-2xl border border-gray-700 shadow-xl h-fit">
+
+            <h2 class="text-2xl font-black mb-6 text-green-300 border-b border-gray-700 pb-3">
+                Add New Skill
+            </h2>
+
+            <form
+                id="skillForm"
+                class="space-y-4"
+            >
+
+                <!-- NAME -->
+
+                <div>
+
+                    <label class="block text-sm text-gray-400 mb-1">
+                        Skill Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="skillName"
+                        placeholder="Contoh: Manajemen Karyawan"
+                        required
+                        class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-3 focus:outline-none focus:border-green-500 text-sm transition"
+                    >
+
+                </div>
+
+                <!-- DESC -->
+
+                <div>
+
+                    <label class="block text-sm text-gray-400 mb-1">
+                        Short Description
+                    </label>
+
+                    <input
+                        type="text"
+                        id="skillDesc"
+                        placeholder="Deskripsi singkat skill"
+                        required
+                        class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-3 focus:outline-none focus:border-green-500 text-sm transition"
+                    >
+
+                </div>
+
+                <!-- CONTENT -->
+
+                <div>
+
+                    <label class="block text-sm text-gray-400 mb-1">
+                        Technical Instruction (SOP)
+                    </label>
+
+                    <textarea
+                        id="skillContent"
+                        rows="8"
+                        placeholder="Tuliskan SOP / instruksi teknis..."
+                        required
+                        class="w-full bg-gray-900 border border-gray-700 rounded px-4 py-3 focus:outline-none focus:border-green-500 text-sm transition"
+                    ></textarea>
+
+                </div>
+
+                <!-- BTN -->
+
+                <button
+                    type="submit"
+                    id="btnSaveSkill"
+                    class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-3 rounded-xl shadow-lg transition duration-200 uppercase tracking-widest text-sm"
+                >
+                    Add To Library
+                </button>
+
+            </form>
+
+            <!-- STATUS -->
+
+            <div
+                id="statusMsg"
+                class="mt-4 text-sm hidden"
+            ></div>
+
+        </div>
+
+    </div>
+
+    <!-- ========================================
+         LIST
+    ========================================= -->
+
+    <div class="xl:col-span-8">
+
+        <div class="bg-gray-800/80 p-6 rounded-2xl border border-gray-700 shadow-xl min-h-[650px]">
+
+            <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
+
+                <h2 class="text-2xl font-black text-gray-300">
+                    Available Skills
+                </h2>
+
+                <div class="text-[10px] uppercase text-green-400 font-bold">
+                    LIVE LIBRARY
+                </div>
+
+            </div>
+
+            <!-- LIST -->
+
+            <div
+                id="skillList"
+                class="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
+                <!-- AUTO -->
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- ========================================
+     SCRIPT
+========================================= -->
+
+<script>
+
+    // ========================================
+    // INIT SPA MODULE
+    // ========================================
+
+    if(!window.skillModuleInitialized){
+
+        window.skillModuleInitialized = true;
+
+        // ========================================
+        // FETCH SKILLS
+        // ========================================
+
+        async function fetchSkills(){
+
+            try{
+
+                const response =
+                await fetch('/api/skills');
+
+                const skills =
+                await response.json();
+
+                const skillList =
+                document.getElementById(
+                    'skillList'
+                );
+
+                if(!skillList) return;
+
+                skillList.innerHTML = '';
+
+                // EMPTY
+
+                if(skills.length === 0){
+
+                    skillList.innerHTML =
+                    `
+                        <div class="text-gray-500 italic">
+                            Belum ada modul skill yang dibuat.
                         </div>
                     `;
+
+                    return;
+
+                }
+
+                // LOOP
+
+                skills.forEach(skill=>{
+
+                    const card = `
+
+                        <div class="bg-gray-900/70 p-5 rounded-xl border border-gray-700 hover:border-green-500 transition shadow-md">
+
+                            <div class="flex justify-between items-start mb-3">
+
+                                <h3 class="text-lg font-black text-green-400">
+                                    ${skill.name}
+                                </h3>
+
+                                <span class="text-[9px] bg-green-900/50 text-green-300 px-2 py-1 rounded uppercase font-black tracking-widest">
+                                    Skill Ready
+                                </span>
+
+                            </div>
+
+                            <p class="text-white text-xs font-semibold mb-3">
+                                ${skill.description}
+                            </p>
+
+                            <div class="bg-black/30 rounded-lg p-3 border border-gray-800">
+
+                                <p class="text-gray-400 text-xs italic line-clamp-6">
+                                    "${skill.content}"
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
                     skillList.innerHTML += card;
+
                 });
-            } catch (error) {
-                console.error("Gagal memuat skill:", error);
+
+            }catch(error){
+
+                console.error(
+                    'Gagal memuat skill:',
+                    error
+                );
+
             }
+
         }
 
-        // Simpan skill baru
-        document.getElementById('skillForm').addEventListener('submit', async function(e) {
+        // ========================================
+        // SAVE SKILL
+        // ========================================
+
+        async function saveSkill(e){
+
             e.preventDefault();
-            
+
+            const btn =
+            document.getElementById(
+                'btnSaveSkill'
+            );
+
+            btn.innerText =
+            'SAVING...';
+
+            btn.disabled = true;
+
             const data = {
-                name: document.getElementById('skillName').value,
-                description: document.getElementById('skillDesc').value,
-                content: document.getElementById('skillContent').value
+
+                name:
+                document.getElementById(
+                    'skillName'
+                ).value,
+
+                description:
+                document.getElementById(
+                    'skillDesc'
+                ).value,
+
+                content:
+                document.getElementById(
+                    'skillContent'
+                ).value
+
             };
 
-            const statusMsg = document.getElementById('statusMsg');
+            const statusMsg =
+            document.getElementById(
+                'statusMsg'
+            );
 
-            try {
-                const response = await fetch('/api/skills', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+            try{
 
-                if (response.ok) {
-                    statusMsg.innerHTML = "✅ Skill added successfully!";
-                    statusMsg.className = "mt-4 text-sm text-green-400 block";
-                    document.getElementById('skillForm').reset();
-                    fetchSkills();
-                } else {
-                    statusMsg.innerHTML = "❌ Failed to add skill.";
-                    statusMsg.className = "mt-4 text-sm text-red-400 block";
+                const response =
+                await fetch(
+                    '/api/skills',
+                    {
+                        method:'POST',
+                        headers:{
+                            'Content-Type':
+                            'application/json'
+                        },
+                        body:JSON.stringify(
+                            data
+                        )
+                    }
+                );
+
+                if(response.ok){
+
+                    statusMsg.innerHTML =
+                    '✅ Skill added successfully!';
+
+                    statusMsg.className =
+                    'mt-4 text-sm text-green-400 block';
+
+                    document.getElementById(
+                        'skillForm'
+                    ).reset();
+
+                    // REFRESH
+
+                    await fetchSkills();
+
+                }else{
+
+                    statusMsg.innerHTML =
+                    '❌ Failed to add skill.';
+
+                    statusMsg.className =
+                    'mt-4 text-sm text-red-400 block';
+
                 }
-            } catch (error) {
-                console.error("Error:", error);
-            }
-        });
 
-        window.onload = fetchSkills;
-    </script>
-</body>
-</html>
+            }catch(error){
+
+                console.error(
+                    'Error:',
+                    error
+                );
+
+            }
+
+            btn.innerText =
+            'Add To Library';
+
+            btn.disabled = false;
+
+        }
+
+        // ========================================
+        // INIT
+        // ========================================
+
+        setTimeout(()=>{
+
+            fetchSkills();
+
+            const form =
+            document.getElementById(
+                'skillForm'
+            );
+
+            if(form){
+
+                form.addEventListener(
+                    'submit',
+                    saveSkill
+                );
+
+            }
+
+        },100);
+
+    }
+
+</script>
