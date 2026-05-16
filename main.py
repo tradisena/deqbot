@@ -5,6 +5,7 @@ import string
 import requests
 import importlib.util
 from fastapi import FastAPI, Request, HTTPException, Header
+from fastapi import Body
 from fastapi.responses import HTMLResponse
 from fastapi.responses import PlainTextResponse
 from fastapi.templating import Jinja2Templates
@@ -26,10 +27,18 @@ elif HAS_OLD_GENAI_SDK:
 # --- DATABASE SETUP ---
 DB_NAME = "deqcore.db"
 MEMORY_DB_NAME = "memory.db"
+WORKFORCE_DB = "database/core/workforce.db"
 
 def get_db_connection():
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
+    return conn
+def get_workforce_connection():
+
+    conn = sqlite3.connect(WORKFORCE_DB)
+
+    conn.row_factory = sqlite3.Row
+
     return conn
 
 def init_db():
@@ -90,6 +99,38 @@ def init_db():
     conn.close()
 
 init_db()
+init_workforce_db()
+def init_workforce_db():
+
+    conn = get_workforce_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+
+        CREATE TABLE IF NOT EXISTS employees (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            employee_name TEXT,
+            role TEXT,
+            personality TEXT,
+            primary_skill TEXT,
+            ai_engine TEXT,
+            authority_level TEXT,
+            objective TEXT,
+
+            status TEXT DEFAULT 'ACTIVE',
+
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+        )
+
+    """)
+
+    conn.commit()
+
+    conn.close()
 
 def get_memory_connection():
     conn = sqlite3.connect(MEMORY_DB_NAME)
@@ -241,6 +282,77 @@ async def read_skill(request: Request):
 @app.get("/configurasi", response_class=HTMLResponse)
 async def read_config(request: Request):
     return templates.TemplateResponse(request=request, name="configurasi.html", context={})
+
+@app.get("/workforce/dashboard", response_class=HTMLResponse)
+async def workforce_dashboard(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workforce/dashboard.html",
+        context={}
+    )
+@app.get("/workforce/create", response_class=HTMLResponse)
+async def workforce_create(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workforce/create.html",
+        context={}
+    )
+@app.post("/api/workforce/create")
+async def api_workforce_create(data: dict = Body(...)):
+
+    print("\n=== NEW AI EMPLOYEE ===")
+
+    print(data)
+
+    return {
+
+        "success": True,
+        "message": "AI Employee Recruitment Success"
+
+    }
+
+@app.get("/workforce/library", response_class=HTMLResponse)
+async def workforce_library(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workforce/library.html",
+        context={}
+    )
+@app.get("/workforce/skills", response_class=HTMLResponse)
+async def workforce_skills(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workforce/skills.html",
+        context={}
+    )
+@app.get("/workforce/memory", response_class=HTMLResponse)
+async def workforce_memory(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workforce/memory.html",
+        context={}
+    )
+@app.get("/workforce/tasks", response_class=HTMLResponse)
+async def workforce_tasks(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workforce/tasks.html",
+        context={}
+    )
+@app.get("/workforce/teams", response_class=HTMLResponse)
+async def workforce_teams(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workforce/teams.html",
+        context={}
+    )
 
 # --- API SETTINGS & GEMINI ---
 @app.get("/api/settings/load_control")
