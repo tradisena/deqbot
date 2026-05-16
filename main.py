@@ -98,8 +98,6 @@ def init_db():
     conn.commit()
     conn.close()
 
-init_db()
-init_workforce_db()
 def init_workforce_db():
 
     conn = get_workforce_connection()
@@ -131,6 +129,10 @@ def init_workforce_db():
     conn.commit()
 
     conn.close()
+
+
+init_db()
+init_workforce_db()
 
 def get_memory_connection():
     conn = sqlite3.connect(MEMORY_DB_NAME)
