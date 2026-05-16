@@ -1011,88 +1011,176 @@
         }
 
         // =========================
-        // LOAD MODULE
-        // =========================
+// LOAD MODULE FINAL FIX
+// =========================
 
-        async function loadModule(
-            url,
-            element,
-            title
-        ){
+async function loadModule(
+    url,
+    element,
+    title
+){
 
-            setActiveMenu(element);
+    setActiveMenu(element);
 
-            const dynamicContent =
-            document.getElementById(
-                'dynamicContent'
-            );
+    const dynamicContent =
+    document.getElementById(
+        'dynamicContent'
+    );
 
-            // HIDE ENGINE
+    // HIDE ENGINE
 
-            document.getElementById(
-                'systemEnginePanel'
-            ).style.display =
-            'none';
+    const enginePanel =
+    document.getElementById(
+        'systemEnginePanel'
+    );
 
-            document.getElementById(
-                'pageTitle'
-            ).innerText =
-            title;
+    if(enginePanel){
 
-            // LOADING
+        enginePanel.style.display =
+        'none';
 
-            dynamicContent.innerHTML =
-            `
-                <div class="h-full flex items-center justify-center">
+    }
 
-                    <div class="text-center">
+    // TITLE
 
-                        <div class="text-blue-500 font-bold animate-pulse">
-                            Loading Module...
-                        </div>
+    const pageTitle =
+    document.getElementById(
+        'pageTitle'
+    );
 
-                        <div class="text-[10px] text-gray-500 mt-2">
-                            ${title}
-                        </div>
+    if(pageTitle){
 
-                    </div>
+        pageTitle.innerText =
+        title;
 
+    }
+
+    // LOADING
+
+    dynamicContent.innerHTML =
+    `
+        <div class="h-full flex items-center justify-center">
+
+            <div class="text-center">
+
+                <div class="text-blue-500 font-bold animate-pulse">
+                    Loading Module...
                 </div>
-            `;
 
-            try{
+                <div class="text-[10px] text-gray-500 mt-2">
+                    ${title}
+                </div>
 
-                const response =
-                await fetch(url);
+            </div>
 
-                const html =
-                await response.text();
+        </div>
+    `;
 
-                const parser =
-                new DOMParser();
+    try{
 
-                const doc =
-                parser.parseFromString(
-                    html,
-                    'text/html'
-                );
+        const response =
+        await fetch(url);
 
-                dynamicContent.innerHTML =
-                doc.body.innerHTML;
+        const html =
+        await response.text();
 
-            }catch(err){
+        const parser =
+        new DOMParser();
 
-                dynamicContent.innerHTML =
-                `
-                    <div class="text-red-500">
-                        Failed Load Module
-                    </div>
-                `;
+        const doc =
+        parser.parseFromString(
+            html,
+            'text/html'
+        );
 
-            }
+        // =====================================
+        // SUPPORT PARTIAL + FULL HTML
+        // =====================================
+
+        let bodyContent = '';
+
+        if(doc.body){
+
+            bodyContent =
+            doc.body.innerHTML;
+
+        }else{
+
+            bodyContent =
+            html;
 
         }
 
+        // =====================================
+        // INJECT CONTENT
+        // =====================================
+
+        dynamicContent.innerHTML =
+        bodyContent;
+
+        // =====================================
+        // RE-RUN SCRIPT MODULE
+        // =====================================
+
+        const scripts =
+        dynamicContent.querySelectorAll(
+            'script'
+        );
+
+        scripts.forEach(oldScript=>{
+
+            const newScript =
+            document.createElement(
+                'script'
+            );
+
+            if(oldScript.src){
+
+                newScript.src =
+                oldScript.src;
+
+            }else{
+
+                newScript.textContent =
+                oldScript.textContent;
+
+            }
+
+            document.body.appendChild(
+                newScript
+            );
+
+            oldScript.remove();
+
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        dynamicContent.innerHTML =
+        `
+            <div class="h-full flex items-center justify-center">
+
+                <div class="text-center">
+
+                    <div class="text-red-500 font-bold">
+                        Failed Load Module
+                    </div>
+
+                    <div class="text-gray-500 text-xs mt-2">
+                        ${url}
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+    }
+
+}
+        
         // =========================
         // LOAD CONFIG
         // =========================
