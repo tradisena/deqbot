@@ -318,10 +318,33 @@ async def api_workforce_create(data: dict = Body(...)):
 @app.get("/workforce/library", response_class=HTMLResponse)
 async def workforce_library(request: Request):
 
+    conn = get_workforce_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+
+        SELECT * FROM employees
+        ORDER BY id DESC
+
+    """)
+
+    employees = cursor.fetchall()
+
+    conn.close()
+
     return templates.TemplateResponse(
+
         request=request,
+
         name="workforce/library.html",
-        context={}
+
+        context={
+
+            "employees": employees
+
+        }
+
     )
 @app.get("/workforce/skills", response_class=HTMLResponse)
 async def workforce_skills(request: Request):
