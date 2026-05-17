@@ -126,6 +126,25 @@ def init_workforce_db():
 
     """)
 
+    cursor.execute("""
+
+        CREATE TABLE IF NOT EXISTS workforce_skills (
+
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            skill_name TEXT NOT NULL,
+            skill_category TEXT NOT NULL,
+            ai_engine TEXT NOT NULL,
+            skill_description TEXT DEFAULT '',
+
+            status TEXT DEFAULT 'ACTIVE',
+
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+        )
+
+    """)
+
     conn.commit()
 
     conn.close()
@@ -260,6 +279,16 @@ class ProspectContactRequest(BaseModel):
     nohp: str
     keterangan: str = ""
 
+class WorkforceSkillCreateRequest(BaseModel):
+    skill_name: str
+    skill_category: str
+    ai_engine: str
+    skill_description: str = ""
+
+class WorkforceAgentChatRequest(BaseModel):
+    employee_id: int
+    prompt: str
+
 # --- ROUTES DASHBOARD ---
 @app.get("/", response_class=HTMLResponse)
 async def read_home(request: Request):
@@ -349,11 +378,119 @@ async def workforce_library(request: Request):
 @app.get("/workforce/skills", response_class=HTMLResponse)
 async def workforce_skills(request: Request):
 
+    conn = get_workforce_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+
+        SELECT * FROM workforce_skills
+        ORDER BY id DESC
+
+    """)
+
+    skills = cursor.fetchall()
+
+    conn.close()
+
     return templates.TemplateResponse(
         request=request,
         name="workforce/skills.html",
-        context={}
+        context={
+            "skills": skills
+        }
     )
+
+@app.post("/api/workforce/skills/create")
+async def api_workforce_skill_create(data: WorkforceSkillCreateRequest):
+
+    skill_name = data.skill_name.strip()
+    skill_category = data.skill_category.strip()
+    ai_engine = data.ai_engine.strip()
+    skill_description = data.skill_description.strip()
+
+    if not skill_name:
+        raise HTTPException(status_code=400, detail="Skill name is required")
+
+    conn = get_workforce_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+            INSERT INTO workforce_skills (
+                skill_name,
+                skill_category,
+                ai_engine,
+                skill_description
+            ) VALUES (?, ?, ?, ?)
+        """,
+        (skill_name, skill_category, ai_engine, skill_description)
+    )
+
+    conn.commit()
+
+    conn.close()
+
+    return {
+        "success": True,
+        "message": "Skill created successfully"
+    }
+
+@app.post("/api/workforce/chat")
+async def api_workforce_chat(req: WorkforceAgentChatRequest):
+    prompt = req.prompt.strip()
+    if not prompt:
+        raise HTTPException(status_code=400, detail="Prompt is required")
+
+    wf_conn = get_workforce_connection()
+    employee = wf_conn.execute(
+        "SELECT * FROM employees WHERE id = ?",
+        (req.employee_id,)
+    ).fetchone()
+    wf_conn.close()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    system_prompt = (
+        f"YOU ARE WORKFORCE AGENT: {employee['employee_name']}\n"
+        f"ROLE: {employee['role']}\n"
+        f"PERSONALITY: {employee['personality']}\n"
+        f"PRIMARY_SKILL: {employee['primary_skill']}\n"
+        f"AUTHORITY_LEVEL: {employee['authority_level']}\n"
+        f"OBJECTIVE: {employee['objective']}\n"
+        "INSTRUCTION: Respond as this specific agent and focus on the assigned role/objective.\n"
+        f"USER: {prompt}"
+    )
+
+    conn = get_db_connection()
+    engine_set = conn.execute("SELECT key_value FROM settings WHERE key_name = 'active_engine'").fetchone()
+    hybrid_set = conn.execute("SELECT key_value FROM settings WHERE key_name = 'hybrid_mode'").fetchone()
+    conn.close()
+
+    active_engine = engine_set['key_value'] if engine_set else "llama3.2:1b"
+    hybrid_on = (hybrid_set['key_value'] == 'true') if hybrid_set else True
+
+    if active_engine == "gemini":
+        gemini_text, gemini_error = generate_gemini_response(system_prompt)
+        if gemini_text:
+            return {"response": gemini_text, "agent_name": employee["employee_name"]}
+        return {"response": gemini_error, "agent_name": employee["employee_name"]}
+
+    try:
+        res = requests.post(
+            "http://localhost:11434/api/generate",
+            json={"model": active_engine, "prompt": system_prompt, "stream": False},
+            timeout=60
+        )
+        return {"response": res.json().get("response", ""), "agent_name": employee["employee_name"]}
+    except:
+        if hybrid_on:
+            gemini_text, _ = generate_gemini_response("[HYBRID FAILOVER] " + system_prompt)
+            if gemini_text:
+                return {"response": "(Backup Cloud) " + gemini_text, "agent_name": employee["employee_name"]}
+        return {"response": "Ollama Offline & Hybrid Gagal.", "agent_name": employee["employee_name"]}
 @app.get("/workforce/memory", response_class=HTMLResponse)
 async def workforce_memory(request: Request):
 

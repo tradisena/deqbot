@@ -858,6 +858,13 @@
 
                 <div class="border-t border-gray-800 p-3">
 
+                    <div
+                        id="activeWorkforceAgent"
+                        class="text-[10px] text-cyan-400 mb-2 hidden"
+                    >
+                        Workforce Agent: -
+                    </div>
+
                     <div class="relative">
 
                         <input
@@ -1301,6 +1308,57 @@ async function loadModule(
             'chatBox'
         );
 
+        let selectedWorkforceAgent = null;
+
+        window.setWorkforceAgentForConsole =
+        function(employeeId, employeeName){
+            selectedWorkforceAgent = {
+                id: employeeId,
+                name: employeeName
+            };
+
+            const badge =
+            document.getElementById(
+                'activeWorkforceAgent'
+            );
+
+            badge.classList.remove(
+                'hidden'
+            );
+
+            badge.innerText =
+            `Workforce Agent: ${employeeName}`;
+
+            sessionStorage.setItem(
+                'selectedWorkforceAgent',
+                JSON.stringify(selectedWorkforceAgent)
+            );
+        };
+
+        function restoreSelectedWorkforceAgent(){
+            const saved =
+            sessionStorage.getItem(
+                'selectedWorkforceAgent'
+            );
+
+            if(!saved) return;
+
+            try{
+                const parsed =
+                JSON.parse(saved);
+                if(parsed && parsed.id){
+                    window.setWorkforceAgentForConsole(
+                        parsed.id,
+                        parsed.name || 'Unknown Agent'
+                    );
+                }
+            }catch(_){
+                sessionStorage.removeItem(
+                    'selectedWorkforceAgent'
+                );
+            }
+        }
+
         function addMessage(
             role,
             text
@@ -1361,20 +1419,41 @@ async function loadModule(
 
             try{
 
+                const endpoint =
+                selectedWorkforceAgent
+                ? '/api/workforce/chat'
+                : '/v1/chat';
+
+                const headers = {
+                    'Content-Type':
+                    'application/json'
+                };
+
+                if(endpoint === '/v1/chat'){
+                    headers['X-DEQ-KEY'] =
+                    'MASTER-ADMIN';
+                }
+
+                const body =
+                selectedWorkforceAgent
+                ? {
+                    employee_id:
+                    selectedWorkforceAgent.id,
+                    prompt:prompt
+                }
+                : {
+                    prompt:prompt
+                };
+
                 const res =
                 await fetch(
-                    '/v1/chat',
+                    endpoint,
                     {
                         method:'POST',
-                        headers:{
-                            'Content-Type':
-                            'application/json',
-                            'X-DEQ-KEY':
-                            'MASTER-ADMIN'
-                        },
-                        body:JSON.stringify({
-                            prompt:prompt
-                        })
+                        headers:headers,
+                        body:JSON.stringify(
+                            body
+                        )
                     }
                 );
 
@@ -1421,7 +1500,10 @@ async function loadModule(
         // =========================
 
         window.onload =
-        loadConfig;
+        ()=>{
+            loadConfig();
+            restoreSelectedWorkforceAgent();
+        };
 
     </script>
 
