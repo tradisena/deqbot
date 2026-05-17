@@ -207,6 +207,7 @@
     border:1px solid #102743;
     border-radius:16px;
     padding:14px;
+    overflow:hidden;
 }
 
 .wf-card-top{
@@ -233,18 +234,24 @@
     color:#42ff87;
     padding:6px 12px;
     border-radius:20px;
-    font-size:11px;
+    font-size:10px;
+    max-width:50%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 
 .wf-name{
     margin:0;
     font-size:16px;
+    word-break:break-word;
 }
 
 .wf-role{
     color:#7fa6d8;
-    font-size:13px;
+    font-size:12px;
     margin-top:8px;
+    word-break:break-word;
 }
 
 .wf-stats-grid{
@@ -270,7 +277,9 @@
 }
 
 .wf-stat-box strong{
-    font-size:13px;
+    font-size:12px;
+    display:block;
+    word-break:break-word;
 }
 
 .wf-tags{
@@ -286,15 +295,17 @@
     color:#8ebcff;
     padding:6px 10px;
     border-radius:20px;
-    font-size:11px;
+    font-size:10px;
+    word-break:break-word;
 }
 
 .wf-objective{
     margin-top:12px;
     color:#9db5d3;
-    font-size:12px;
+    font-size:11px;
     line-height:1.4;
     min-height:44px;
+    word-break:break-word;
 }
 
 .wf-actions{
