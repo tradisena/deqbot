@@ -1,0 +1,302 @@
+<!-- ========================================= -->
+<!-- DEQSHE AI WORKFORCE -->
+<!-- teams.html -->
+<!-- AI TEAM COORDINATION -->
+<!-- ========================================= -->
+
+<div class="wf-teams-wrapper">
+
+    <!-- TOPBAR -->
+    <div class="wf-teams-topbar">
+
+        <div>
+            <h2>AI AGENT TEAMS</h2>
+
+            <p>
+                Multi-Agent Collaboration & Division Coordination System
+            </p>
+        </div>
+
+        <div class="wf-team-status">
+            <span class="wf-dot"></span>
+            <span>TEAM NETWORK ONLINE</span>
+        </div>
+
+    </div>
+
+    <!-- TEAM GRID -->
+    <div class="wf-team-grid">
+
+        <!-- TEAM -->
+        <div class="wf-team-card">
+
+            <div class="wf-team-head">
+
+                <div>
+                    <h3>Marketing Division</h3>
+                    <p>Growth & Promotion AI Team</p>
+                </div>
+
+                <span class="wf-team-badge">
+                    ACTIVE
+                </span>
+
+            </div>
+
+            <div class="wf-team-members">
+
+                <div class="wf-member">
+                    <span class="wf-avatar">DN</span>
+                    DEQNova
+                </div>
+
+                <div class="wf-member">
+                    <span class="wf-avatar">DA</span>
+                    DEQAds
+                </div>
+
+                <div class="wf-member">
+                    <span class="wf-avatar">DS</span>
+                    DEQSocial
+                </div>
+
+            </div>
+
+            <div class="wf-team-stats">
+
+                <div>
+                    <strong>12</strong>
+                    <span>Tasks</span>
+                </div>
+
+                <div>
+                    <strong>94%</strong>
+                    <span>Efficiency</span>
+                </div>
+
+                <div>
+                    <strong>3</strong>
+                    <span>Entities</span>
+                </div>
+
+            </div>
+
+            <button class="wf-btn blue">
+                Open Team Workspace
+            </button>
+
+        </div>
+
+        <!-- TEAM -->
+        <div class="wf-team-card">
+
+            <div class="wf-team-head">
+
+                <div>
+                    <h3>Research Division</h3>
+                    <p>Strategic Analysis AI Team</p>
+                </div>
+
+                <span class="wf-team-badge">
+                    ACTIVE
+                </span>
+
+            </div>
+
+            <div class="wf-team-members">
+
+                <div class="wf-member">
+                    <span class="wf-avatar">DM</span>
+                    DEQMind
+                </div>
+
+                <div class="wf-member">
+                    <span class="wf-avatar">DR</span>
+                    DEQResearch
+                </div>
+
+            </div>
+
+            <div class="wf-team-stats">
+
+                <div>
+                    <strong>8</strong>
+                    <span>Tasks</span>
+                </div>
+
+                <div>
+                    <strong>97%</strong>
+                    <span>Accuracy</span>
+                </div>
+
+                <div>
+                    <strong>2</strong>
+                    <span>Entities</span>
+                </div>
+
+            </div>
+
+            <button class="wf-btn blue">
+                Open Team Workspace
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+.wf-teams-wrapper{
+    width:100%;
+    color:#fff;
+    font-family:Arial,sans-serif;
+}
+
+.wf-teams-topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#07111f;
+    border:1px solid #102743;
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.wf-teams-topbar h2{
+    margin:0;
+    font-size:24px;
+}
+
+.wf-teams-topbar p{
+    margin-top:6px;
+    color:#7fa6d8;
+    font-size:12px;
+}
+
+.wf-team-status{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#42ff87;
+    font-size:12px;
+}
+
+.wf-dot{
+    width:10px;
+    height:10px;
+    background:#42ff87;
+    border-radius:50%;
+}
+
+.wf-team-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
+    gap:20px;
+}
+
+.wf-team-card{
+    background:#07111f;
+    border:1px solid #102743;
+    border-radius:16px;
+    padding:20px;
+}
+
+.wf-team-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:20px;
+}
+
+.wf-team-head h3{
+    margin:0;
+}
+
+.wf-team-head p{
+    margin-top:6px;
+    color:#7fa6d8;
+    font-size:12px;
+}
+
+.wf-team-badge{
+    background:#173b20;
+    color:#65ff9d;
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.wf-team-members{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-bottom:20px;
+}
+
+.wf-member{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#09192e;
+    border:1px solid #17365d;
+    padding:12px;
+    border-radius:10px;
+}
+
+.wf-avatar{
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:#163764;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.wf-team-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-bottom:20px;
+}
+
+.wf-team-stats div{
+    background:#09192e;
+    border:1px solid #17365d;
+    border-radius:10px;
+    padding:14px;
+    text-align:center;
+}
+
+.wf-team-stats strong{
+    display:block;
+    font-size:20px;
+    color:#4ea1ff;
+}
+
+.wf-team-stats span{
+    font-size:11px;
+    color:#7fa6d8;
+}
+
+.wf-btn{
+    width:100%;
+    border:none;
+    padding:14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    color:#fff;
+}
+
+.wf-btn.blue{
+    background:#1b4f8f;
+}
+
+</style>
