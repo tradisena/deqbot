@@ -1,0 +1,435 @@
+<!-- ========================================= -->
+<!-- DEQSHE AI WORKFORCE -->
+<!-- tasks.html -->
+<!-- WORKFLOW TASK CENTER -->
+<!-- ========================================= -->
+
+<div class="wf-tasks-wrapper">
+
+    <!-- TOPBAR -->
+    <div class="wf-tasks-topbar">
+
+        <div>
+            <h2>WORKFLOW TASK CENTER</h2>
+
+            <p>
+                Internal AI Workforce Task Coordination System
+            </p>
+        </div>
+
+        <div class="wf-task-status">
+            <span class="wf-dot"></span>
+            <span>AI WORKFLOW ACTIVE</span>
+        </div>
+
+    </div>
+
+    <!-- STATS -->
+    <div class="wf-task-stats">
+
+        <div class="wf-stat-card">
+            <h3>18</h3>
+            <p>ACTIVE TASKS</p>
+        </div>
+
+        <div class="wf-stat-card">
+            <h3>5</h3>
+            <p>PENDING</p>
+        </div>
+
+        <div class="wf-stat-card">
+            <h3>32</h3>
+            <p>COMPLETED</p>
+        </div>
+
+        <div class="wf-stat-card">
+            <h3>97%</h3>
+            <p>WORKFLOW STABILITY</p>
+        </div>
+
+    </div>
+
+    <!-- TASK LIST -->
+    <div class="wf-task-list">
+
+        <!-- TASK ITEM -->
+        <div class="wf-task-card">
+
+            <div class="wf-task-header">
+
+                <div>
+                    <h3>Optimize Landing Page</h3>
+                    <p>Assigned to DEQNova</p>
+                </div>
+
+                <div class="wf-priority high">
+                    HIGH
+                </div>
+
+            </div>
+
+            <div class="wf-progress-area">
+
+                <div class="wf-progress-info">
+                    <span>Progress</span>
+                    <span>72%</span>
+                </div>
+
+                <div class="wf-progress-bar">
+                    <div class="wf-progress-fill" style="width:72%;"></div>
+                </div>
+
+            </div>
+
+            <div class="wf-task-footer">
+
+                <div class="wf-task-status running">
+                    RUNNING
+                </div>
+
+                <div class="wf-task-actions">
+
+                    <button class="wf-btn dark">
+                        View
+                    </button>
+
+                    <button class="wf-btn blue">
+                        Manage
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TASK ITEM -->
+        <div class="wf-task-card">
+
+            <div class="wf-task-header">
+
+                <div>
+                    <h3>AI Market Research</h3>
+                    <p>Assigned to DEQMind</p>
+                </div>
+
+                <div class="wf-priority medium">
+                    MEDIUM
+                </div>
+
+            </div>
+
+            <div class="wf-progress-area">
+
+                <div class="wf-progress-info">
+                    <span>Progress</span>
+                    <span>45%</span>
+                </div>
+
+                <div class="wf-progress-bar">
+                    <div class="wf-progress-fill" style="width:45%;"></div>
+                </div>
+
+            </div>
+
+            <div class="wf-task-footer">
+
+                <div class="wf-task-status pending">
+                    ANALYZING
+                </div>
+
+                <div class="wf-task-actions">
+
+                    <button class="wf-btn dark">
+                        View
+                    </button>
+
+                    <button class="wf-btn blue">
+                        Manage
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TASK ITEM -->
+        <div class="wf-task-card">
+
+            <div class="wf-task-header">
+
+                <div>
+                    <h3>Customer Automation Setup</h3>
+                    <p>Assigned to DEQCare</p>
+                </div>
+
+                <div class="wf-priority low">
+                    LOW
+                </div>
+
+            </div>
+
+            <div class="wf-progress-area">
+
+                <div class="wf-progress-info">
+                    <span>Progress</span>
+                    <span>100%</span>
+                </div>
+
+                <div class="wf-progress-bar">
+                    <div class="wf-progress-fill" style="width:100%;"></div>
+                </div>
+
+            </div>
+
+            <div class="wf-task-footer">
+
+                <div class="wf-task-status completed">
+                    COMPLETED
+                </div>
+
+                <div class="wf-task-actions">
+
+                    <button class="wf-btn dark">
+                        Logs
+                    </button>
+
+                    <button class="wf-btn blue">
+                        Reopen
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================================= -->
+<!-- STYLE -->
+<!-- ========================================= -->
+
+<style>
+
+.wf-tasks-wrapper{
+    width:100%;
+    color:#fff;
+    font-family:Arial,sans-serif;
+}
+
+.wf-tasks-topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#07111f;
+    border:1px solid #102743;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.wf-tasks-topbar h2{
+    margin:0;
+    font-size:24px;
+    letter-spacing:1px;
+}
+
+.wf-tasks-topbar p{
+    margin-top:5px;
+    color:#6f8db8;
+    font-size:12px;
+}
+
+.wf-task-status{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#42ff87;
+    font-size:12px;
+}
+
+.wf-dot{
+    width:10px;
+    height:10px;
+    background:#42ff87;
+    border-radius:50%;
+}
+
+.wf-task-stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-bottom:20px;
+}
+
+.wf-stat-card{
+    background:#07111f;
+    border:1px solid #102743;
+    border-radius:14px;
+    padding:20px;
+}
+
+.wf-stat-card h3{
+    margin:0;
+    font-size:34px;
+    color:#4ea1ff;
+}
+
+.wf-stat-card p{
+    margin-top:10px;
+    color:#7fa6d8;
+    font-size:12px;
+    letter-spacing:1px;
+}
+
+.wf-task-list{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.wf-task-card{
+    background:#07111f;
+    border:1px solid #102743;
+    border-radius:16px;
+    padding:20px;
+}
+
+.wf-task-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.wf-task-header h3{
+    margin:0;
+    font-size:20px;
+}
+
+.wf-task-header p{
+    margin-top:6px;
+    color:#7fa6d8;
+    font-size:12px;
+}
+
+.wf-priority{
+    padding:8px 14px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.high{
+    background:#4b1717;
+    color:#ff7d7d;
+}
+
+.medium{
+    background:#5b4d1a;
+    color:#ffd86b;
+}
+
+.low{
+    background:#16351c;
+    color:#65ff9d;
+}
+
+.wf-progress-area{
+    margin-bottom:20px;
+}
+
+.wf-progress-info{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+    font-size:12px;
+    color:#7fa6d8;
+}
+
+.wf-progress-bar{
+    width:100%;
+    height:10px;
+    background:#09192e;
+    border-radius:20px;
+    overflow:hidden;
+}
+
+.wf-progress-fill{
+    height:100%;
+    background:#2f7fe7;
+    border-radius:20px;
+}
+
+.wf-task-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.wf-task-status{
+    padding:8px 14px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.running{
+    background:#143c20;
+    color:#65ff9d;
+}
+
+.pending{
+    background:#53431b;
+    color:#ffd86b;
+}
+
+.completed{
+    background:#163764;
+    color:#7cc0ff;
+}
+
+.wf-task-actions{
+    display:flex;
+    gap:10px;
+}
+
+.wf-btn{
+    border:none;
+    padding:10px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    color:#fff;
+}
+
+.wf-btn.blue{
+    background:#1b4f8f;
+}
+
+.wf-btn.dark{
+    background:#0d1d33;
+    border:1px solid #17365d;
+}
+
+@media(max-width:768px){
+
+    .wf-tasks-topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+    .wf-task-footer{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+}
+
+</style>
