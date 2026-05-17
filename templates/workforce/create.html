@@ -1,0 +1,378 @@
+<div class="wf-create-wrapper">
+
+    <!-- HEADER -->
+    <div class="wf-create-topbar">
+
+        <div>
+            <h2>RECRUIT AI EMPLOYEE</h2>
+
+            <p>
+                Build Internal DEQShe AI Workforce Entity
+            </p>
+        </div>
+
+        <div class="wf-create-status">
+            <span class="wf-dot"></span>
+            <span>WORKFORCE RECRUITMENT ACTIVE</span>
+        </div>
+
+    </div>
+
+    <!-- FORM -->
+    <div class="wf-create-panel">
+
+        <div class="wf-form-grid">
+
+            <!-- LEFT -->
+            <div>
+
+                <!-- EMPLOYEE NAME -->
+                <div class="wf-form-group">
+
+                    <label>AI Employee Name</label>
+
+                    <input
+                        type="text"
+                        id="employee_name"
+                        class="wf-input"
+                        placeholder="Example: DEQNova"
+                    >
+
+                </div>
+
+                <!-- ROLE -->
+                <div class="wf-form-group">
+
+                    <label>Division / Role</label>
+
+                    <input
+                        type="text"
+                        id="role"
+                        class="wf-input"
+                        placeholder="Marketing Strategist"
+                    >
+
+                </div>
+
+                <!-- PERSONALITY -->
+                <div class="wf-form-group">
+
+                    <label>AI Personality</label>
+
+                    <select
+                        id="personality"
+                        class="wf-input"
+                    >
+
+                        <option>Strategic</option>
+                        <option>Analytical</option>
+                        <option>Friendly</option>
+                        <option>Formal</option>
+                        <option>Aggressive</option>
+
+                    </select>
+
+                </div>
+
+                <!-- PRIMARY SKILL -->
+                <div class="wf-form-group">
+
+                    <label>Primary Skill</label>
+
+                    <select
+                        id="primary_skill"
+                        class="wf-input"
+                    >
+
+                        <option>Marketing</option>
+                        <option>Research</option>
+                        <option>Support</option>
+                        <option>Automation</option>
+                        <option>Trading</option>
+                        <option>Coding</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div>
+
+                <!-- AI ENGINE -->
+                <div class="wf-form-group">
+
+                    <label>AI Engine</label>
+
+                    <select
+                        id="ai_engine"
+                        class="wf-input"
+                    >
+
+                        <option>Gemini</option>
+                        <option>OpenAI</option>
+                        <option>Hybrid AI</option>
+                        <option>Local AI</option>
+
+                    </select>
+
+                </div>
+
+                <!-- AUTHORITY -->
+                <div class="wf-form-group">
+
+                    <label>Authority Level</label>
+
+                    <select
+                        id="authority_level"
+                        class="wf-input"
+                    >
+
+                        <option>Observer</option>
+                        <option>Assistant</option>
+                        <option>Operator</option>
+
+                    </select>
+
+                </div>
+
+                <!-- OBJECTIVE -->
+                <div class="wf-form-group">
+
+                    <label>Work Objective</label>
+
+                    <textarea
+                        id="objective"
+                        class="wf-input wf-textarea"
+                        placeholder="Describe AI employee objective..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ACTION -->
+        <div class="wf-action-bar">
+
+            <button
+                class="wf-btn blue"
+                onclick="recruitEmployee()"
+            >
+                RECRUIT AI EMPLOYEE
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+.wf-create-wrapper{
+    width:100%;
+    color:#fff;
+    font-family:Arial,sans-serif;
+}
+
+.wf-create-topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#07111f;
+    border:1px solid #102743;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.wf-create-topbar h2{
+    margin:0;
+    font-size:24px;
+    letter-spacing:1px;
+}
+
+.wf-create-topbar p{
+    margin-top:6px;
+    color:#6f8db8;
+    font-size:12px;
+}
+
+.wf-create-status{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#42ff87;
+    font-size:12px;
+}
+
+.wf-dot{
+    width:10px;
+    height:10px;
+    background:#42ff87;
+    border-radius:50%;
+}
+
+.wf-create-panel{
+    background:#07111f;
+    border:1px solid #102743;
+    border-radius:16px;
+    padding:25px;
+}
+
+.wf-form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+
+.wf-form-group{
+    margin-bottom:20px;
+}
+
+.wf-form-group label{
+    display:block;
+    margin-bottom:8px;
+    font-size:12px;
+    color:#7fa6d8;
+    letter-spacing:1px;
+}
+
+.wf-input{
+    width:100%;
+    background:#09192e;
+    border:1px solid #17365d;
+    color:#fff;
+    padding:14px;
+    border-radius:10px;
+    outline:none;
+    font-size:13px;
+    box-sizing:border-box;
+}
+
+.wf-input:focus{
+    border-color:#4ea1ff;
+}
+
+.wf-textarea{
+    min-height:150px;
+    resize:none;
+}
+
+.wf-action-bar{
+    margin-top:10px;
+}
+
+.wf-btn{
+    width:100%;
+    border:none;
+    padding:16px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+    color:#fff;
+    letter-spacing:1px;
+    transition:0.3s;
+}
+
+.wf-btn.blue{
+    background:#1b4f8f;
+}
+
+.wf-btn.blue:hover{
+    background:#2563ad;
+}
+
+@media(max-width:900px){
+
+    .wf-form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .wf-create-topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+
+}
+
+</style>
+
+<script>
+
+async function recruitEmployee(){
+
+    const employee_name =
+        document.getElementById("employee_name").value;
+
+    const role =
+        document.getElementById("role").value;
+
+    const personality =
+        document.getElementById("personality").value;
+
+    const primary_skill =
+        document.getElementById("primary_skill").value;
+
+    const ai_engine =
+        document.getElementById("ai_engine").value;
+
+    const authority_level =
+        document.getElementById("authority_level").value;
+
+    const objective =
+        document.getElementById("objective").value;
+
+    const payload = {
+
+        employee_name,
+        role,
+        personality,
+        primary_skill,
+        ai_engine,
+        authority_level,
+        objective
+
+    };
+
+    console.log(payload);
+
+    try{
+
+        const response = await fetch(
+            "/api/workforce/create",
+            {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(payload)
+
+            }
+        );
+
+        const result = await response.json();
+
+        console.log(result);
+
+        alert(result.message);
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert("Recruitment failed");
+
+    }
+
+}
+
+</script>
