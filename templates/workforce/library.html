@@ -107,12 +107,12 @@
             <!-- ACTION -->
             <div class="wf-actions">
 
-                <button class="wf-btn blue">
-                    Open Profile
+                <button class="wf-btn blue" onclick="chatWithAgent({{ employee.id }}, {{ employee.employee_name|tojson }})">
+                    Chat
                 </button>
 
                 <button class="wf-btn dark">
-                    Assign Task
+                    Profile
                 </button>
 
             </div>
@@ -198,15 +198,15 @@
 
 .wf-library-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-    gap:20px;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
 }
 
 .wf-card{
     background:#07111f;
     border:1px solid #102743;
     border-radius:16px;
-    padding:20px;
+    padding:14px;
 }
 
 .wf-card-top{
@@ -238,7 +238,7 @@
 
 .wf-name{
     margin:0;
-    font-size:28px;
+    font-size:16px;
 }
 
 .wf-role{
@@ -250,8 +250,8 @@
 .wf-stats-grid{
     display:grid;
     grid-template-columns:repeat(3,1fr);
-    gap:10px;
-    margin-top:20px;
+    gap:8px;
+    margin-top:12px;
 }
 
 .wf-stat-box{
@@ -290,27 +290,28 @@
 }
 
 .wf-objective{
-    margin-top:18px;
+    margin-top:12px;
     color:#9db5d3;
-    font-size:13px;
-    line-height:1.6;
-    min-height:60px;
+    font-size:12px;
+    line-height:1.4;
+    min-height:44px;
 }
 
 .wf-actions{
     display:flex;
-    gap:10px;
-    margin-top:20px;
+    gap:8px;
+    margin-top:12px;
 }
 
 .wf-btn{
     flex:1;
     border:none;
-    padding:12px;
+    padding:9px;
     border-radius:10px;
     color:#fff;
     font-weight:bold;
     cursor:pointer;
+    font-size:12px;
 }
 
 .wf-btn.blue{
@@ -320,6 +321,12 @@
 .wf-btn.dark{
     background:#0c1b2e;
     border:1px solid #17365d;
+}
+
+@media(max-width:1200px){
+    .wf-library-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
 }
 
 @media(max-width:900px){
@@ -332,6 +339,21 @@
         width:100%;
     }
 
+    .wf-library-grid{
+        grid-template-columns:1fr;
+    }
+
 }
 
 </style>
+
+<script>
+function chatWithAgent(employeeId, employeeName){
+    if(typeof window.setWorkforceAgentForConsole === "function"){
+        window.setWorkforceAgentForConsole(employeeId, employeeName);
+        alert(`Agent ${employeeName} dipilih. Silakan chat di panel kanan.`);
+    }else{
+        alert("Panel chat belum siap.");
+    }
+}
+</script>
