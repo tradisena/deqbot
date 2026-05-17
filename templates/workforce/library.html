@@ -107,7 +107,7 @@
             <!-- ACTION -->
             <div class="wf-actions">
 
-                <button class="wf-btn blue" onclick="selectAgentAndOpenChat({{ employee.id }}, {{ employee.employee_name|tojson }})">
+                <button class="wf-btn blue" onclick="chatWithAgent({{ employee.id }}, {{ employee.employee_name|tojson }})">
                     Chat
                 </button>
 
@@ -348,26 +348,12 @@
 </style>
 
 <script>
-function selectAgentAndOpenChat(employeeId, employeeName){
-    const payload = {
-        id: employeeId,
-        name: employeeName
-    };
-
-    sessionStorage.setItem(
-        "selectedWorkforceAgent",
-        JSON.stringify(payload)
-    );
-
+function chatWithAgent(employeeId, employeeName){
     if(typeof window.setWorkforceAgentForConsole === "function"){
         window.setWorkforceAgentForConsole(employeeId, employeeName);
-        const input = document.getElementById("userInput");
-        if(input){
-            input.focus();
-        }
-        return;
+        alert(`Agent ${employeeName} dipilih. Silakan chat di panel kanan.`);
+    }else{
+        alert("Panel chat belum siap.");
     }
-
-    window.location.href = "/";
 }
 </script>

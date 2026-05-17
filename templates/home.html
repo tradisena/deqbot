@@ -1328,36 +1328,7 @@ async function loadModule(
 
             badge.innerText =
             `Workforce Agent: ${employeeName}`;
-
-            sessionStorage.setItem(
-                'selectedWorkforceAgent',
-                JSON.stringify(selectedWorkforceAgent)
-            );
         };
-
-        function restoreSelectedWorkforceAgent(){
-            const saved =
-            sessionStorage.getItem(
-                'selectedWorkforceAgent'
-            );
-
-            if(!saved) return;
-
-            try{
-                const parsed =
-                JSON.parse(saved);
-                if(parsed && parsed.id){
-                    window.setWorkforceAgentForConsole(
-                        parsed.id,
-                        parsed.name || 'Unknown Agent'
-                    );
-                }
-            }catch(_){
-                sessionStorage.removeItem(
-                    'selectedWorkforceAgent'
-                );
-            }
-        }
 
         function addMessage(
             role,
